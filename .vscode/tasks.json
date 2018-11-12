@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [{
+            "label": "Build Nano FFmpeg",
+            "type": "shell",
+            "group": "build",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceRoot}/SmartGlass.Nano.FFmpeg/SmartGlass.Nano.FFmpeg.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
