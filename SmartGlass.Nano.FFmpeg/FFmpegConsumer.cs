@@ -64,6 +64,7 @@ namespace SmartGlass.Nano.FFmpeg
             _videoHandler.DecodingThread().Start();
         }
 
+        /* Called by Audio/Video handlers' decoding threads */
         public void OnDecodedVideoFrame(object sender, VideoFrameDecodedArgs args)
         {
             // Enqueue decoded video frame in renderer
@@ -76,10 +77,13 @@ namespace SmartGlass.Nano.FFmpeg
             _renderer.Audio.Update(args.FrameData);
         }
 
-        public void ConsumeAudioData(AudioData data)
+
+        /* Called by NanoClient on freshly received data */
+        public void ConsumeAudioData(object sender, AudioDataEventArgs args)
         {
+            // TODO: Sorting
             AACFrame frame = AudioAssembler.AssembleAudioFrame(
-                data: data,
+                data: args.AudioData,
                 profile: AACProfile.LC,
                 samplingFreq: (int)_audioFormat.SampleRate,
                 channels: (byte)_audioFormat.Channels);
@@ -91,14 +95,10 @@ namespace SmartGlass.Nano.FFmpeg
             _audioHandler.PushData(frame);
         }
 
-        public void ConsumeAudioFormat(AudioFormat format)
+        public void ConsumeVideoData(object sender, VideoDataEventArgs args)
         {
-            _renderer.Audio.SetFormat(format);
-        }
-
-        public void ConsumeVideoData(VideoData data)
-        {
-            H264Frame frame = _videoAssembler.AssembleVideoFrame(data);
+            // TODO: Sorting
+            H264Frame frame = _videoAssembler.AssembleVideoFrame(args.VideoData);
 
             if (frame == null)
                 return;
@@ -107,9 +107,9 @@ namespace SmartGlass.Nano.FFmpeg
             _videoHandler.PushData(frame);
         }
 
-        public void ConsumeVideoFormat(VideoFormat format)
+        public void ConsumeInputFeedbackFrame(object sender, InputFrameEventArgs args)
         {
-            _renderer.Video.SetFormat(format, fullscreen: false);
+            throw new NotImplementedException();
         }
     }
 }

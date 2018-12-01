@@ -3,8 +3,10 @@ using System.IO;
 using System.Threading.Tasks;
 using SmartGlass.Channels;
 using SmartGlass.Channels.Broadcast;
+using SmartGlass.Common;
 using SmartGlass.Nano;
 using SmartGlass.Nano.Consumer;
+using SmartGlass.Nano.Packets;
 using XboxWebApi.Authentication;
 
 namespace SmartGlass.Nano.FFmpeg
@@ -68,39 +70,58 @@ namespace SmartGlass.Nano.FFmpeg
             string hostName = args[0];
 
             Console.WriteLine("Connecting to console {0}...", hostName);
+            AudioFormat chatAudioFormat = new AudioFormat(1, 24000, AudioCodec.Opus);
+            GamestreamConfiguration config = GamestreamConfiguration.GetStandardConfig();
             FFmpegConsumer consumer = new FFmpegConsumer();
 
+            SmartGlassClient client = null;
             try
             {
-                StartStream(hostName, userHash, xToken, consumer).GetAwaiter().GetResult();
+                client = SmartGlassClient.ConnectAsync(hostName, userHash, xToken)
+                    .GetAwaiter().GetResult();
             }
             catch (Exception e)
             {
                 Console.WriteLine("Connection timed out! msg: {0}", e);
                 return;
             }
-            consumer.Start();
-            consumer.MainLoop();
-        }
 
-        static async Task StartStream(string hostName, string userHash, string xToken,
-                                        IConsumer consumer)
-        {
-            SmartGlassClient client = await SmartGlassClient
-                .ConnectAsync(hostName, userHash, xToken);
-
-            GamestreamSession sess = await client.BroadcastChannel
-                .StartGamestreamAsync();
+            GamestreamSession session = client.BroadcastChannel.StartGamestreamAsync(config)
+                .GetAwaiter().GetResult();
 
             Console.WriteLine(
-                $"Connecting to TCP: {sess.TcpPort}, UDP: {sess.UdpPort}");
+                $"Connecting to NANO // TCP: {session.TcpPort}, UDP: {session.UdpPort}");
 
-            NanoClient nano = new NanoClient(hostName,
-                                         sess.TcpPort, sess.UdpPort,
-                                         new System.Guid(),
-                                         consumer);
-            await nano.Initialize();
-            await nano.StartStream();
+            NanoClient nano = new NanoClient(hostName, session);
+
+            // General Handshaking & Opening channels
+            nano.InitializeProtocolAsync()
+                .GetAwaiter().GetResult();
+
+            /*
+            2018/12/01 Opening input channel is broken
+
+            nano.OpenInputChannel(1280, 720)
+                .GetAwaiter().GetResult();
+            */
+
+            // Audio & Video client handshaking
+            // Sets desired AV formats
+            nano.InitializeStreamAsync(nano.AudioFormats[0], nano.VideoFormats[0])
+                .GetAwaiter().GetResult();
+
+            // TODO: Send opus audio chat samples to console
+            nano.OpenChatAudioChannel(chatAudioFormat)
+                .GetAwaiter().GetResult();
+
+            nano.AddConsumer(consumer);
+            consumer.Start();
+
+            // Tell console to start sending AV frames
+            nano.StartStreamAsync()
+                .GetAwaiter().GetResult();
+
+            consumer.MainLoop();
         }
     }
 }
