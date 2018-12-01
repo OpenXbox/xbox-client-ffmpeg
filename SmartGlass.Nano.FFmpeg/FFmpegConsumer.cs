@@ -18,19 +18,10 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void MainLoop() => _renderer.MainLoop();
 
-        public FFmpegConsumer()
+        public FFmpegConsumer(AudioFormat audioFormat, VideoFormat videoFormat)
         {
-            _audioFormat = new AudioFormat(
-                channels: 2,
-                sampleRate: 48000,
-                codec: AudioCodec.AAC);
-
-            _videoFormat = new VideoFormat(
-                fps: 30,
-                width: 1280,
-                height: 720,
-                codec: VideoCodec.H264
-            );
+            _audioFormat = audioFormat;
+            _videoFormat = videoFormat;
 
             _videoAssembler = new VideoAssembler();
             _audioHandler = new FFmpegAudio();

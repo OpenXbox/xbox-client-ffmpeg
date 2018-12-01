@@ -70,9 +70,7 @@ namespace SmartGlass.Nano.FFmpeg
             string hostName = args[0];
 
             Console.WriteLine("Connecting to console {0}...", hostName);
-            AudioFormat chatAudioFormat = new AudioFormat(1, 24000, AudioCodec.Opus);
             GamestreamConfiguration config = GamestreamConfiguration.GetStandardConfig();
-            FFmpegConsumer consumer = new FFmpegConsumer();
 
             SmartGlassClient client = null;
             try
@@ -107,14 +105,20 @@ namespace SmartGlass.Nano.FFmpeg
 
             // Audio & Video client handshaking
             // Sets desired AV formats
-            nano.InitializeStreamAsync(nano.AudioFormats[0], nano.VideoFormats[0])
+            AudioFormat audioFormat = nano.AudioFormats[0];
+            VideoFormat videoFormat = nano.VideoFormats[0];
+            nano.InitializeStreamAsync(audioFormat, videoFormat)
                 .GetAwaiter().GetResult();
 
             // TODO: Send opus audio chat samples to console
+            AudioFormat chatAudioFormat = new AudioFormat(1, 24000, AudioCodec.Opus);
             nano.OpenChatAudioChannel(chatAudioFormat)
                 .GetAwaiter().GetResult();
 
+            FFmpegConsumer consumer = new FFmpegConsumer(audioFormat, videoFormat);
             nano.AddConsumer(consumer);
+
+            // Start consumer to get decoding threads running
             consumer.Start();
 
             // Tell console to start sending AV frames
