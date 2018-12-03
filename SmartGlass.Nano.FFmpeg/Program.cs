@@ -96,12 +96,8 @@ namespace SmartGlass.Nano.FFmpeg
             nano.InitializeProtocolAsync()
                 .GetAwaiter().GetResult();
 
-            /*
-            2018/12/01 Opening input channel is broken
-
-            nano.OpenInputChannel(1280, 720)
+            nano.OpenInputChannelAsync(1280, 720)
                 .GetAwaiter().GetResult();
-            */
 
             // Audio & Video client handshaking
             // Sets desired AV formats
@@ -112,7 +108,7 @@ namespace SmartGlass.Nano.FFmpeg
 
             // TODO: Send opus audio chat samples to console
             AudioFormat chatAudioFormat = new AudioFormat(1, 24000, AudioCodec.Opus);
-            nano.OpenChatAudioChannel(chatAudioFormat)
+            nano.OpenChatAudioChannelAsync(chatAudioFormat)
                 .GetAwaiter().GetResult();
 
             FFmpegConsumer consumer = new FFmpegConsumer(audioFormat, videoFormat);
