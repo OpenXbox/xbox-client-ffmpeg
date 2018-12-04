@@ -13,7 +13,6 @@ namespace SmartGlass.Nano.FFmpeg
         public bool Initialized { get; private set; }
 
         private uint _dev;
-        private AudioFormat _audioFormat;
         private int _audioSamplesCount;
         private Queue<byte[]> _audioData;
 
@@ -22,12 +21,6 @@ namespace SmartGlass.Nano.FFmpeg
             Initialized = false;
             _dev = 0;
             _audioData = new Queue<byte[]>();
-        }
-
-        public void SetFormat(AudioFormat format, int samples=4096)
-        {
-            _audioFormat = format;
-            _audioSamplesCount = samples;
         }
 
         public int Initialize(int samplerate, int channels, int samples)
@@ -83,8 +76,8 @@ namespace SmartGlass.Nano.FFmpeg
             }
         }
 
-		private int UpdateAudio(IntPtr data, uint length)
-		{
+        private int UpdateAudio(IntPtr data, uint length)
+        {
             if (!Initialized)
             {
                 Debug.WriteLine("SDL Audio not initialized yet...");
@@ -92,7 +85,7 @@ namespace SmartGlass.Nano.FFmpeg
             }
 
             return SDL.SDL_QueueAudio(_dev, data, length);
-		}
+        }
 
         public int Close()
         {

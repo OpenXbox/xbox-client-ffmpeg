@@ -12,7 +12,6 @@ namespace SmartGlass.Nano.FFmpeg
     {
         public bool Initialized { get; private set; }
 
-        private VideoFormat _videoFormat;
         private bool _videoFullscreen;
 
         private SDL.SDL_Rect _rect;
@@ -25,13 +24,7 @@ namespace SmartGlass.Nano.FFmpeg
         public SdlVideo()
         {
             Initialized = false;
-            _videoData = new Queue<Tuple<byte[][],int[]>>();
-        }
-
-        public void SetFormat(VideoFormat format, bool fullscreen = false)
-        {
-            _videoFormat = format;
-            _videoFullscreen = fullscreen;
+            _videoData = new Queue<Tuple<byte[][], int[]>>();
         }
 
         public int Initialize(int width, int height, bool fullscreen)
@@ -100,7 +93,7 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void PushDecodedData(byte[][] yuvData, int[] lineSizes)
         {
-            _videoData.Enqueue(new Tuple<byte[][],int[]>(yuvData, lineSizes));
+            _videoData.Enqueue(new Tuple<byte[][], int[]>(yuvData, lineSizes));
         }
 
         public int Update(byte[][] yuvData, int[] lineSizes)
