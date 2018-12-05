@@ -121,7 +121,8 @@ namespace SmartGlass.Nano.FFmpeg
             nano.StartStreamAsync()
                 .GetAwaiter().GetResult();
 
-            consumer.MainLoop();
+            SdlProducer producer = new SdlProducer(nano);
+            producer.MainLoop();
         }
     }
 }

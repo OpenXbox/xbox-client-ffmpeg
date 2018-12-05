@@ -1,35 +1,36 @@
 using System;
-using SDL2;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using SmartGlass.Nano.Packets;
 using System.Diagnostics;
+using SDL2;
 
 namespace SmartGlass.Nano.FFmpeg
 {
-    public class SdlRenderer
+    public class SdlProducer
     {
-        public SdlAudio Audio { get; private set; }
-        public SdlVideo Video { get; private set; }
-        public SdlInput Input { get; private set; }
-        public event EventHandler<InputEventArgs> HandleInputEvent;
+        private readonly NanoClient _client;
+        private SdlInput Input { get; set; }
 
-        public SdlRenderer()
+        private event EventHandler<InputEventArgs> HandleInputEvent;
+
+        public SdlProducer(NanoClient client)
         {
+            _client = client;
+
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string controllerMappingPath = System.IO.Path
                                             .Combine(baseDir, "gamecontrollerdb.txt");
             Debug.WriteLine("Using Controller Mapping file: {0}", controllerMappingPath);
 
-            Audio = new SdlAudio();
-            Video = new SdlVideo();
             Input = new SdlInput(controllerMappingPath);
+
+            HandleInputEvent += Input.HandleInput;
         }
 
         public void MainLoop()
         {
-            while (true)
+            Input.Initialize();
+
+            bool running = true;
+            while (running)
             {
                 if (SDL.SDL_PollEvent(out SDL.SDL_Event sdlEvent) > 0)
                 {
@@ -37,7 +38,8 @@ namespace SmartGlass.Nano.FFmpeg
                     {
                         case SDL.SDL_EventType.SDL_QUIT:
                             Console.WriteLine("SDL Quit, bye!");
-                            return;
+                            running = false;
+                            break;
 
                         case SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED:
                             HandleInputEvent?.Invoke(this,
@@ -98,6 +100,11 @@ namespace SmartGlass.Nano.FFmpeg
                     }
                 }
 
+                _client.Input.SendInputFrame(
+                    Input.Timestamp, Input.Buttons, Input.Analog, Input.Extension)
+                        .GetAwaiter().GetResult();
+
+                // TODO: Check if sleep is necessary
                 System.Threading.Thread.Sleep(millisecondsTimeout: 10);
             }
         }

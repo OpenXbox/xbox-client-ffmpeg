@@ -14,9 +14,8 @@ namespace SmartGlass.Nano.FFmpeg
         private VideoAssembler _videoAssembler;
         private FFmpegAudio _audioHandler;
         private FFmpegVideo _videoHandler;
-        private SdlRenderer _renderer;
-
-        public void MainLoop() => _renderer.MainLoop();
+        private SdlAudio _audioRenderer;
+        private SdlVideo _videoRenderer;
 
         public FFmpegConsumer(AudioFormat audioFormat, VideoFormat videoFormat)
         {
@@ -32,7 +31,8 @@ namespace SmartGlass.Nano.FFmpeg
             _audioHandler.CreateDecoderContext();
             _videoHandler.CreateDecoderContext();
 
-            _renderer = new SdlRenderer();
+            _audioRenderer = new SdlAudio();
+            _videoRenderer = new SdlVideo();
 
             _audioHandler.ProcessDecodedFrame += OnDecodedAudioFrame;
             _videoHandler.ProcessDecodedFrame += OnDecodedVideoFrame;
@@ -40,17 +40,15 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void Start()
         {
-            _renderer.Video.Initialize(
+            _videoRenderer.Initialize(
                 width: (int)_videoFormat.Width,
                 height: (int)_videoFormat.Height,
                 fullscreen: false);
 
-            _renderer.Audio.Initialize(
+            _audioRenderer.Initialize(
                 samplerate: (int)_audioFormat.SampleRate,
                 channels: (int)_audioFormat.Channels,
                 samples: 1024);
-
-            _renderer.Input.Initialize();
 
             // Start decoding threads
             _audioHandler.DecodingThread().Start();
@@ -61,13 +59,13 @@ namespace SmartGlass.Nano.FFmpeg
         public void OnDecodedVideoFrame(object sender, VideoFrameDecodedArgs args)
         {
             // Enqueue decoded video frame in renderer
-            _renderer.Video.Update(args.FrameData, args.LineSizes);
+            _videoRenderer.Update(args.FrameData, args.LineSizes);
         }
 
         public void OnDecodedAudioFrame(object sender, AudioFrameDecodedArgs args)
         {
             // Enqueue decoded audio sample in renderer
-            _renderer.Audio.Update(args.FrameData);
+            _audioRenderer.Update(args.FrameData);
         }
 
 

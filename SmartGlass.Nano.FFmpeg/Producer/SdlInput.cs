@@ -13,10 +13,24 @@ namespace SmartGlass.Nano.FFmpeg
         public bool Initialized { get; private set; }
         public string ControllerMappingFilepath { get; private set; }
 
+
+        public uint Timestamp { get; private set; }
+        public InputButtons Buttons { get; private set; }
+        public InputAnalogue Analog { get; private set; }
+        public InputExtension Extension { get; private set; }
+
         private IntPtr _controller;
         public SdlInput(string controllerMappingFilepath)
         {
             ControllerMappingFilepath = controllerMappingFilepath;
+
+            Timestamp = 0;
+            Buttons = new InputButtons();
+            Analog = new InputAnalogue();
+            Extension = new InputExtension();
+
+            // Set "controller byte"
+            Extension.Unknown1 = 1;
         }
 
         public int Initialize()
@@ -43,14 +57,14 @@ namespace SmartGlass.Nano.FFmpeg
                 if (SDL.SDL_IsGameController(i) == SDL.SDL_bool.SDL_TRUE)
                 {
                     Debug.WriteLine("Found a gamecontroller (Index: {0})", i);
-                    Open(i);
+                    OpenController(i);
                 }
             }
 
             return 1;
         }
 
-        public int Open(int joystickIndex)
+        public int OpenController(int joystickIndex)
         {
             if (!Initialized)
             {
@@ -67,7 +81,7 @@ namespace SmartGlass.Nano.FFmpeg
             {
                 Debug.WriteLine("There is an active controller already.");
                 Debug.WriteLine("Closing the old one...");
-                Close();
+                CloseController();
             }
 
             _controller = SDL.SDL_GameControllerOpen(joystickIndex);
@@ -81,7 +95,7 @@ namespace SmartGlass.Nano.FFmpeg
             return 0;
         }
 
-        public void Close()
+        public void CloseController()
         {
             if (_controller == IntPtr.Zero)
             {
@@ -90,6 +104,18 @@ namespace SmartGlass.Nano.FFmpeg
             }
             Debug.WriteLine("Removing Controller...");
             SDL.SDL_GameControllerClose(_controller);
+        }
+
+        internal void HandleInput(object sender, InputEventArgs e)
+        {
+            Timestamp = e.Timestamp;
+
+            /*
+            Buttons = ...;
+            Analog = ...;
+            */
+
+            throw new NotImplementedException();
         }
     }
 }
