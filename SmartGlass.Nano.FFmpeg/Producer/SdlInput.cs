@@ -15,8 +15,8 @@ namespace SmartGlass.Nano.FFmpeg
 
 
         public uint Timestamp { get; private set; }
-        public InputButtons Buttons { get; private set; }
-        public InputAnalogue Analog { get; private set; }
+        public InputButtons2 Buttons { get; private set; }
+        public InputAnalogue2 Analog { get; private set; }
         public InputExtension Extension { get; private set; }
 
         private IntPtr _controller;
@@ -25,8 +25,8 @@ namespace SmartGlass.Nano.FFmpeg
             ControllerMappingFilepath = controllerMappingFilepath;
 
             Timestamp = 0;
-            Buttons = new InputButtons();
-            Analog = new InputAnalogue();
+            Buttons = new InputButtons2();
+            Analog = new InputAnalogue2();
             Extension = new InputExtension();
 
             // Set "controller byte"
@@ -108,24 +108,42 @@ namespace SmartGlass.Nano.FFmpeg
 
         private void HandleControllerButtonChange(NanoGamepadButton button, bool pressed)
         {
+            byte currentValue = Buttons.GetValue(button);
+            bool currentlyPressed = !((currentValue % 2) == 0 || currentValue == 0);
 
+            if (currentlyPressed == pressed)
+                return;
+
+            Buttons.SetValue(button, ++currentValue);
         }
 
-        private void HandleControllerAxisChange()
+        private void HandleControllerAxisChange(NanoGamepadAxis axis, float axisValue)
         {
-
+            Analog.SetValue(axis, axisValue);
         }
 
         internal void HandleInput(object sender, InputEventArgs e)
         {
             Timestamp = e.Timestamp;
 
-            /*
-            Buttons = ...;
-            Analog = ...;
-            */
-
-            throw new NotImplementedException();
+            switch (e.EventType)
+            {
+                case InputEventType.ControllerAdded:
+                    OpenController(e.ControllerIndex);
+                    break;
+                case InputEventType.ControllerRemoved:
+                    CloseController();
+                    break;
+                case InputEventType.ButtonPressed:
+                case InputEventType.ButtonReleased:
+                    HandleControllerButtonChange(e.Button, e.EventType == InputEventType.ButtonPressed);
+                    break;
+                case InputEventType.AxisMoved:
+                    HandleControllerAxisChange(e.Axis, e.AxisValue);
+                    break;
+                default:
+                    throw new NotSupportedException($"Invalid InputEventType: {e.EventType}");
+            }
         }
     }
 }
