@@ -12,8 +12,6 @@ namespace SmartGlass.Nano.FFmpeg
     {
         public bool Initialized { get; private set; }
 
-        private bool _videoFullscreen;
-
         private SDL.SDL_Rect _rect;
         private IntPtr _window;
         private IntPtr _renderer;

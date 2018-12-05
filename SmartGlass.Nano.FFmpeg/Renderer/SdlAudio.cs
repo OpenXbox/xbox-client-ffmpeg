@@ -13,7 +13,6 @@ namespace SmartGlass.Nano.FFmpeg
         public bool Initialized { get; private set; }
 
         private uint _dev;
-        private int _audioSamplesCount;
         private Queue<byte[]> _audioData;
 
         public SdlAudio()

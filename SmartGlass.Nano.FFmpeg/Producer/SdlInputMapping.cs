@@ -5,9 +5,9 @@ using static SDL2.SDL;
 
 namespace SmartGlass.Nano.FFmpeg
 {
-    public static class SdlButtonMapping
+    public static class SdlInputMapping
     {
-        public static Dictionary<SDL_GameControllerButton, NanoGamepadButton> Map =
+        private static Dictionary<SDL_GameControllerButton, NanoGamepadButton> ButtonMap =
             new Dictionary<SDL_GameControllerButton, NanoGamepadButton>()
             {
                 {SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A, NanoGamepadButton.A},
@@ -27,9 +27,25 @@ namespace SmartGlass.Nano.FFmpeg
                 {SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE, NanoGamepadButton.Guide}
             };
 
+        private static Dictionary<SDL_GameControllerAxis, NanoGamepadAxis> AxisMap =
+            new Dictionary<SDL_GameControllerAxis, NanoGamepadAxis>()
+            {
+                {SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, NanoGamepadAxis.LeftX},
+                {SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY, NanoGamepadAxis.LeftY},
+                {SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX, NanoGamepadAxis.RightX},
+                {SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY, NanoGamepadAxis.RightY},
+                {SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT, NanoGamepadAxis.TriggerLeft},
+                {SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT, NanoGamepadAxis.TriggerRight}
+            };
+
         public static NanoGamepadButton GetButton(SDL_GameControllerButton button)
         {
-            return Map[button];
+            return ButtonMap[button];
+        }
+
+        public static NanoGamepadAxis GetAxis(SDL_GameControllerAxis axis)
+        {
+            return AxisMap[axis];
         }
     }
 }

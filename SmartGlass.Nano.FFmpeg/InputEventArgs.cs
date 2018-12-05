@@ -1,7 +1,8 @@
 using System;
-using SmartGlass.Nano;
 
-namespace SmartGlass.Nano.FFmpeg
+
+// TODO: Move into core library?
+namespace SmartGlass.Nano
 {
     public enum InputEventType
     {
@@ -18,6 +19,7 @@ namespace SmartGlass.Nano.FFmpeg
         public int ControllerIndex { get; internal set; }
         public uint Timestamp { get; internal set; }
         public NanoGamepadButton Button { get; internal set; }
-        public float[] AxisValues { get; internal set; }
+        public NanoGamepadAxis Axis { get; internal set; }
+        public float AxisValue { get; internal set; }
     }
 }

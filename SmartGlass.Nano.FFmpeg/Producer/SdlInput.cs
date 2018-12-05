@@ -106,6 +106,16 @@ namespace SmartGlass.Nano.FFmpeg
             SDL.SDL_GameControllerClose(_controller);
         }
 
+        private void HandleControllerButtonChange(NanoGamepadButton button, bool pressed)
+        {
+
+        }
+
+        private void HandleControllerAxisChange()
+        {
+
+        }
+
         internal void HandleInput(object sender, InputEventArgs e)
         {
             Timestamp = e.Timestamp;

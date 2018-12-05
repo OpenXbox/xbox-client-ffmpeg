@@ -69,7 +69,7 @@ namespace SmartGlass.Nano.FFmpeg
                                     EventType = InputEventType.ButtonPressed,
                                     ControllerIndex = sdlEvent.cdevice.which,
                                     Timestamp = pressedButton.timestamp,
-                                    Button = SdlButtonMapping.GetButton((SDL.SDL_GameControllerButton)pressedButton.button)
+                                    Button = SdlInputMapping.GetButton((SDL.SDL_GameControllerButton)pressedButton.button)
                                 });
                             break;
 
@@ -81,7 +81,7 @@ namespace SmartGlass.Nano.FFmpeg
                                     EventType = InputEventType.ButtonReleased,
                                     ControllerIndex = sdlEvent.cdevice.which,
                                     Timestamp = releasedButton.timestamp,
-                                    Button = SdlButtonMapping.GetButton((SDL.SDL_GameControllerButton)releasedButton.button)
+                                    Button = SdlInputMapping.GetButton((SDL.SDL_GameControllerButton)releasedButton.button)
                                 });
                             break;
 
@@ -93,8 +93,8 @@ namespace SmartGlass.Nano.FFmpeg
                                     EventType = InputEventType.AxisMoved,
                                     ControllerIndex = sdlEvent.cdevice.which,
                                     Timestamp = axisEvent.timestamp,
-                                    // TODO: Mapping
-                                    AxisValues = new float[4] { 0.0f, 0.0f, 0.0f, 0.0f }
+                                    Axis = SdlInputMapping.GetAxis((SDL.SDL_GameControllerAxis)axisEvent.axis),
+                                    AxisValue = axisEvent.axisValue
                                 });
                             break;
                     }
