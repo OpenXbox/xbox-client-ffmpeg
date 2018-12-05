@@ -13,7 +13,7 @@ namespace SmartGlass.Nano.FFmpeg
         public SdlAudio Audio { get; private set; }
         public SdlVideo Video { get; private set; }
         public SdlInput Input { get; private set; }
-        //public event EventHandler<SinkEventArgs> HandlerSinkEvent;
+        public event EventHandler<InputEventArgs> HandleInputEvent;
 
         public SdlRenderer()
         {
@@ -27,18 +27,6 @@ namespace SmartGlass.Nano.FFmpeg
             Input = new SdlInput(controllerMappingPath);
         }
 
-        /*
-        private void FireSinkEvent(SinkEventArgs e)
-        {
-            EventHandler<SinkEventArgs> handler = HandlerSinkEvent;
-            if (handler != null)
-            {
-                Debug.WriteLine("Firing Event: {0}", e.Type);
-                handler(this, e);
-            }
-        }
-        */
-
         public void MainLoop()
         {
             while (true)
@@ -48,32 +36,69 @@ namespace SmartGlass.Nano.FFmpeg
                     switch (sdlEvent.type)
                     {
                         case SDL.SDL_EventType.SDL_QUIT:
-                            //ev = new SinkEvent(EventType.RENDER_QUIT, 0, 0);
-                            break;
+                            Console.WriteLine("SDL Quit, bye!");
+                            return;
+
                         case SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED:
-                            int ret = Input.Open(sdlEvent.cdevice.which);
-                            //if (ret == 0)
-                            // FireSinkEvent(new ControllerStatechangeArgs(0, 1));
+                            HandleInputEvent?.Invoke(this,
+                                new InputEventArgs()
+                                {
+                                    EventType = InputEventType.ControllerAdded,
+                                    Timestamp = sdlEvent.cdevice.timestamp,
+                                    ControllerIndex = sdlEvent.cdevice.which
+                                });
                             break;
+
                         case SDL.SDL_EventType.SDL_CONTROLLERDEVICEREMOVED:
-                            //FireSinkEvent(new ControllerStatechangeArgs(0, 0));
-                            Input.Close();
+                            HandleInputEvent?.Invoke(this,
+                                new InputEventArgs()
+                                {
+                                    EventType = InputEventType.ControllerRemoved,
+                                    Timestamp = sdlEvent.cdevice.timestamp,
+                                    ControllerIndex = sdlEvent.cdevice.which
+                                });
                             break;
+
                         case SDL.SDL_EventType.SDL_CONTROLLERBUTTONDOWN:
                             SDL.SDL_ControllerButtonEvent pressedButton = sdlEvent.cbutton;
-                            //FireSinkEvent(new ControllerButtonpressArgs(pressedButton.Button, true));
+                            HandleInputEvent?.Invoke(this,
+                                new InputEventArgs()
+                                {
+                                    EventType = InputEventType.ButtonPressed,
+                                    ControllerIndex = sdlEvent.cdevice.which,
+                                    Timestamp = pressedButton.timestamp,
+                                    Button = SdlButtonMapping.GetButton((SDL.SDL_GameControllerButton)pressedButton.button)
+                                });
                             break;
+
                         case SDL.SDL_EventType.SDL_CONTROLLERBUTTONUP:
                             SDL.SDL_ControllerButtonEvent releasedButton = sdlEvent.cbutton;
-                            //FireSinkEvent(new ControllerButtonpressArgs(releasedButton.Button, false));
+                            HandleInputEvent?.Invoke(this,
+                                new InputEventArgs()
+                                {
+                                    EventType = InputEventType.ButtonReleased,
+                                    ControllerIndex = sdlEvent.cdevice.which,
+                                    Timestamp = releasedButton.timestamp,
+                                    Button = SdlButtonMapping.GetButton((SDL.SDL_GameControllerButton)releasedButton.button)
+                                });
                             break;
+
                         case SDL.SDL_EventType.SDL_CONTROLLERAXISMOTION:
                             SDL.SDL_ControllerAxisEvent axisEvent = sdlEvent.caxis;
-                            //FireSinkEvent(new ControllerAxismoveArgs(axisEvent.Axis, axisEvent.Value));
+                            HandleInputEvent?.Invoke(this,
+                                new InputEventArgs()
+                                {
+                                    EventType = InputEventType.AxisMoved,
+                                    ControllerIndex = sdlEvent.cdevice.which,
+                                    Timestamp = axisEvent.timestamp,
+                                    // TODO: Mapping
+                                    AxisValues = new float[4] { 0.0f, 0.0f, 0.0f, 0.0f }
+                                });
                             break;
                     }
                 }
-                System.Threading.Thread.Sleep(10);
+
+                System.Threading.Thread.Sleep(millisecondsTimeout: 10);
             }
         }
     }

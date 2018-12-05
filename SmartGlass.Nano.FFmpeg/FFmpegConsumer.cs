@@ -50,6 +50,8 @@ namespace SmartGlass.Nano.FFmpeg
                 channels: (int)_audioFormat.Channels,
                 samples: 1024);
 
+            _renderer.Input.Initialize();
+
             // Start decoding threads
             _audioHandler.DecodingThread().Start();
             _videoHandler.DecodingThread().Start();
