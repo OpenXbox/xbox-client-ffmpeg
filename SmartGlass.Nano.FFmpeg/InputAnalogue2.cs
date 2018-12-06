@@ -11,7 +11,7 @@ namespace SmartGlass.Nano
 
         // TODO: Add to core library
         // TODO: Verify data types - float vs ushort vs byte
-        public ushort GetValue(NanoGamepadAxis axis)
+        public float GetValue(NanoGamepadAxis axis)
         {
             switch (axis)
             {
@@ -27,8 +27,9 @@ namespace SmartGlass.Nano
                     return LeftTrigger;
                 case NanoGamepadAxis.TriggerRight:
                     return RightTrigger;
+                default:
+                    throw new NotSupportedException();
             }
-            throw new NotSupportedException();
         }
 
         public void SetValue(NanoGamepadAxis axis, float value)
@@ -48,13 +49,15 @@ namespace SmartGlass.Nano
                     RightThumbY = (ushort)value;
                     break;
                 case NanoGamepadAxis.TriggerLeft:
-                    LeftTrigger = (byte)value;
+                    LeftTrigger = (byte)((value / 32768) * 0xFF);
                     break;
                 case NanoGamepadAxis.TriggerRight:
-                    RightTrigger = (byte)value;
+                    RightTrigger = (byte)((value / 32768) * 0xFF);
                     break;
+                default:
+                    throw new NotSupportedException();
             }
-            throw new NotSupportedException();
+
         }
     }
 }

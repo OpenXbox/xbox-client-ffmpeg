@@ -44,8 +44,9 @@ namespace SmartGlass.Nano
                     return RightShoulder;
                 case NanoGamepadButton.RightThumbstick:
                     return RightThumbstick;
+                default:
+                    throw new NotSupportedException();
             }
-            throw new NotSupportedException();
         }
 
         public void SetValue(NanoGamepadButton button, byte value)
@@ -97,8 +98,10 @@ namespace SmartGlass.Nano
                 case NanoGamepadButton.RightThumbstick:
                     RightThumbstick = value;
                     break;
+                default:
+                    throw new NotSupportedException();
             }
-            throw new NotSupportedException();
+
         }
     }
 }
