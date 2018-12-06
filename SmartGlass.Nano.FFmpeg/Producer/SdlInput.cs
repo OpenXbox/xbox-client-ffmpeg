@@ -33,22 +33,24 @@ namespace SmartGlass.Nano.FFmpeg
             Extension.Unknown1 = 1;
         }
 
-        public int Initialize()
+        public bool Initialize()
         {
             int ret = SDL.SDL_Init(SDL.SDL_INIT_GAMECONTROLLER);
             if (ret < 0)
             {
                 Debug.WriteLine("SDL_Init GAMECONTROLLER failed: {0}", SDL.SDL_GetError());
-                return 0;
+                return false;
             }
             if (ControllerMappingFilepath != null)
             {
                 ret = SDL.SDL_GameControllerAddMappingsFromFile(ControllerMappingFilepath);
                 if (ret < 0)
                 {
-                    Debug.WriteLine("Failed to load GameControllerDB, {0}", ControllerMappingFilepath);
+                    Debug.WriteLine(String.Format("Failed to load GameControllerDB, {0}", ControllerMappingFilepath));
+                    return false;
                 }
             }
+            Initialized = true;
 
             int numJoysticks = SDL.SDL_NumJoysticks();
             Debug.WriteLine("Found {0} joysticks", numJoysticks);
@@ -61,7 +63,7 @@ namespace SmartGlass.Nano.FFmpeg
                 }
             }
 
-            return 1;
+            return true;
         }
 
         public int OpenController(int joystickIndex)

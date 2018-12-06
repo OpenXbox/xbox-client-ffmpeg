@@ -18,7 +18,6 @@ namespace SmartGlass.Nano.FFmpeg
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string controllerMappingPath = System.IO.Path
                                             .Combine(baseDir, "gamecontrollerdb.txt");
-            Debug.WriteLine("Using Controller Mapping file: {0}", controllerMappingPath);
 
             Input = new SdlInput(controllerMappingPath);
 
@@ -27,7 +26,9 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void MainLoop()
         {
-            Input.Initialize();
+            bool success = Input.Initialize();
+            if (!success)
+                throw new InvalidOperationException("Failed to init SDL Input");
 
             bool running = true;
             while (running)
@@ -98,14 +99,14 @@ namespace SmartGlass.Nano.FFmpeg
                                 });
                             break;
                     }
+
+                    _client.Input.SendInputFrame(
+                        Input.Timestamp, Input.Buttons, Input.Analog, Input.Extension)
+                            .GetAwaiter().GetResult();
+
+                    // TODO: Check if sleep is necessary
+                    System.Threading.Thread.Sleep(millisecondsTimeout: 10);
                 }
-
-                _client.Input.SendInputFrame(
-                    Input.Timestamp, Input.Buttons, Input.Analog, Input.Extension)
-                        .GetAwaiter().GetResult();
-
-                // TODO: Check if sleep is necessary
-                System.Threading.Thread.Sleep(millisecondsTimeout: 10);
             }
         }
     }

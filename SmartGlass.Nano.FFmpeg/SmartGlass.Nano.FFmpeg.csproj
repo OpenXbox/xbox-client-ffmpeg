@@ -19,11 +19,4 @@
     <PackageReference Include="OpenXbox.SmartGlass.Nano" Version="1.0.2" />
     <PackageReference Include="SDL2-CS-Rolling" Version="2018.11.1" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Decoder\" />
-    <Folder Include="Renderer\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Streamer.cs" />
-  </ItemGroup>
 </Project>
