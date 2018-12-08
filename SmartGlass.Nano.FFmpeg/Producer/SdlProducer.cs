@@ -8,21 +8,17 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public class SdlProducer
     {
-        private readonly NanoClient _client;
-        private SdlInput Input { get; set; }
+        readonly NanoClient _client;
+        SdlInput Input { get; set; }
 
-        private event EventHandler<InputEventArgs> HandleInputEvent;
+        event EventHandler<InputEventArgs> HandleInputEvent;
 
         public SdlProducer(NanoClient client)
         {
             _client = client;
-
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string controllerMappingPath = System.IO.Path
-                                            .Combine(baseDir, "gamecontrollerdb.txt");
 
-            Input = new SdlInput(controllerMappingPath);
-
+            Input = new SdlInput($"{baseDir}/gamecontrollerdb.txt");
             HandleInputEvent += Input.HandleInput;
         }
 
