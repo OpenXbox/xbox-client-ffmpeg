@@ -17,9 +17,16 @@
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="4.0.0.3" />
     <PackageReference Include="OpenXbox.XboxWebApi" Version="0.2.4" />
+    <PackageReference Include="SDL2-CS-Rolling" Version="2018.11.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
     <PackageReference Include="OpenXbox.SmartGlass.Common" Version="1.0.3" />
     <PackageReference Include="OpenXbox.SmartGlass" Version="1.0.3" />
     <PackageReference Include="OpenXbox.SmartGlass.Nano" Version="1.0.3" />
-    <PackageReference Include="SDL2-CS-Rolling" Version="2018.11.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <ProjectReference Include="..\Includes\SmartGlass\SmartGlass\SmartGlass.csproj" />
+    <ProjectReference Include="..\Includes\SmartGlass\SmartGlass.Common\SmartGlass.Common.csproj" />
+    <ProjectReference Include="..\Includes\SmartGlass\SmartGlass.Nano\SmartGlass.Nano.csproj" />
   </ItemGroup>
 </Project>
