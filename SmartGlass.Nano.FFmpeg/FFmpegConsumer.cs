@@ -15,7 +15,8 @@ namespace SmartGlass.Nano.FFmpeg
         FFmpegVideo _videoHandler;
         SdlAudio _audioRenderer;
         SdlVideo _videoRenderer;
-        bool _initalSeenPPS;
+        bool _audioContextInitialized;
+        bool _videoContextInitialized;
 
         public FFmpegConsumer(AudioFormat audioFormat, VideoFormat videoFormat)
         {
@@ -90,6 +91,12 @@ namespace SmartGlass.Nano.FFmpeg
                 samplingFreq: (int)_audioFormat.SampleRate,
                 channels: (byte)_audioFormat.Channels);
 
+            if (!_audioContextInitialized)
+            {
+                _audioHandler.UpdateCodecParameters(frame.GetCodecSpecificData());
+                _audioContextInitialized = true;
+            }
+
             if (frame == null)
                 return;
 
@@ -99,15 +106,23 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void ConsumeVideoData(object sender, VideoDataEventArgs args)
         {
-            if (!_initalSeenPPS && args.VideoData.Header.Marker)
-                _initalSeenPPS = true;
-
             // TODO: Sorting
             H264Frame frame = _videoAssembler.AssembleVideoFrame(args.VideoData);
 
             // Enqueue encoded video data in decoder
-            if (frame != null && _initalSeenPPS)
+            if (frame != null && _videoContextInitialized)
                 _videoHandler.PushData(frame);
+            else if (args.VideoData.Header.Marker)
+            {
+                H264Frame codecParamFrame = new H264Frame(args.VideoData.Data, 0, 0);
+                if (!codecParamFrame.ContainsPPS || !codecParamFrame.ContainsSPS)
+                {
+                    throw new InvalidOperationException("Marked frame does not have desired params");
+                }
+
+                _videoHandler.UpdateCodecParameters(codecParamFrame.GetCodecSpecificDataAvcc());
+                _videoContextInitialized = true;
+            }
         }
 
         public void ConsumeInputFeedbackFrame(object sender, InputFrameEventArgs args)

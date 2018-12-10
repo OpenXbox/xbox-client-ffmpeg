@@ -115,6 +115,17 @@ namespace SmartGlass.Nano.FFmpeg
         }
 
         /// <summary>
+        /// Update Codec context with extradata, needed for decoding
+        /// </summary>
+        /// <param name="codecData">Codec specific data (SPS/PPS) in AVCC format</param>
+        internal override void UpdateCodecParameters(byte[] codecData)
+        {
+            pCodecContext->extradata = (byte*)ffmpeg.av_mallocz((ulong)(codecData.Length + ffmpeg.AV_INPUT_BUFFER_PADDING_SIZE));
+            Marshal.Copy(codecData, 0, (IntPtr)pCodecContext->extradata, codecData.Length);
+            pCodecContext->extradata_size = codecData.Length;
+        }
+
+        /// <summary>
         /// Sets the codec context parameters.
         /// </summary>
         internal override void SetCodecContextParams(AVCodecContext* codecContext)

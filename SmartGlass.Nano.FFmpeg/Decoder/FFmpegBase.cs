@@ -51,6 +51,12 @@ namespace SmartGlass.Nano.FFmpeg
         }
 
         /// <summary>
+        /// Set Codec specific parameters for decoding
+        /// </summary>
+        /// <param name="codecData">Codec specific data</param>
+        internal abstract void UpdateCodecParameters(byte[] codecData);
+
+        /// <summary>
         /// Sets the codec context parameters.
         /// </summary>
         internal abstract void SetCodecContextParams(AVCodecContext* codecContext);
