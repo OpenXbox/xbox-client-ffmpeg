@@ -10,7 +10,7 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public unsafe class SdlAudio
     {
-        public bool Initialized => _dev == 0;
+        public bool Initialized => _dev > 0;
 
         uint _dev;
         Queue<byte[]> _audioData;
