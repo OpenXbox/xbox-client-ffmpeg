@@ -10,8 +10,8 @@ namespace SmartGlass.Nano.FFmpeg
     {
         readonly NanoClient _client;
         SdlInput Input { get; set; }
-
         event EventHandler<InputEventArgs> HandleInputEvent;
+        public bool IsRunning { get; private set; }
 
         public SdlProducer(NanoClient client)
         {
@@ -24,15 +24,14 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void MainLoop()
         {
-            bool success = Input.Initialize();
-            if (!success)
+            if (!Input.Initialize())
                 throw new InvalidOperationException("Failed to init SDL Input");
 
-            bool running = true;
+            IsRunning = true;
 
             new Thread(() =>
             {
-                while (running)
+                while (IsRunning)
                 {
                     try
                     {
@@ -40,16 +39,14 @@ namespace SmartGlass.Nano.FFmpeg
                             Input.Timestamp, Input.Buttons, Input.Analog, Input.Extension)
                                 .GetAwaiter().GetResult();
                     }
-                    catch (Exception e)
+                    catch
                     {
-
+                        Thread.Sleep(millisecondsTimeout: 5);
                     }
-
-                    Thread.Sleep(millisecondsTimeout: 10);
                 }
             }).Start();
 
-            while (running)
+            while (IsRunning)
             {
                 if (SDL.SDL_PollEvent(out SDL.SDL_Event sdlEvent) > 0)
                 {
@@ -57,7 +54,7 @@ namespace SmartGlass.Nano.FFmpeg
                     {
                         case SDL.SDL_EventType.SDL_QUIT:
                             Console.WriteLine("SDL Quit, bye!");
-                            running = false;
+                            IsRunning = false;
                             break;
 
                         case SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED:
@@ -120,6 +117,9 @@ namespace SmartGlass.Nano.FFmpeg
                 }
                 Task.Delay(10).GetAwaiter().GetResult();
             }
+
+            // closes input controller
+            Input.CloseController();
         }
     }
 }

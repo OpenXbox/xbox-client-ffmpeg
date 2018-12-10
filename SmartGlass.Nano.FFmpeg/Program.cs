@@ -117,8 +117,7 @@ namespace SmartGlass.Nano.FFmpeg
             consumer.Start();
 
             // Tell console to start sending AV frames
-            nano.StartStreamAsync()
-                .GetAwaiter().GetResult();
+            nano.StartStreamAsync().GetAwaiter().GetResult();
 
             SdlProducer producer = new SdlProducer(nano);
             producer.MainLoop();

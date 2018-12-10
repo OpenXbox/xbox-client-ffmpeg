@@ -10,131 +10,106 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public unsafe class SdlVideo
     {
-        public bool Initialized { get; private set; }
+        public bool Initialized => _texture != IntPtr.Zero;
+        bool _fullscreenWindow;
+        SDL.SDL_Rect _rectOrigin;
+        IntPtr _window;
+        IntPtr _renderer;
+        IntPtr _texture;
 
-        private SDL.SDL_Rect _rect;
-        private IntPtr _window;
-        private IntPtr _renderer;
-        private IntPtr _texture;
-
-        private Queue<Tuple<byte[][], int[]>> _videoData;
-
-        public SdlVideo()
+        public SdlVideo(int width = 1280, int height = 720, bool fullscreen = false)
         {
-            Initialized = false;
-            _videoData = new Queue<Tuple<byte[][], int[]>>();
+            _fullscreenWindow = fullscreen;
+            _rectOrigin = new SDL.SDL_Rect() { x = 0, y = 0, w = width, h = height };
         }
 
-        public int Initialize(int width, int height, bool fullscreen)
+        public void Initialize()
         {
             SDL.SDL_WindowFlags window_flags = 0;
-
-            int ret = SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
-            if (ret < 0)
+            if ((SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_EVENTS) | SDL_ttf.TTF_Init()) < 0)
             {
                 Debug.WriteLine($"Could not init SDL video: {SDL.SDL_GetError()}");
-                return 1;
+                return;
             }
 
-            if (fullscreen)
-            {
+            if (_fullscreenWindow)
                 window_flags = SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN;
-            }
 
-            _window = SDL.SDL_CreateWindow("Nano",
+            _window = SDL.SDL_CreateWindow(
+                "Nano",
                 SDL.SDL_WINDOWPOS_UNDEFINED,
                 SDL.SDL_WINDOWPOS_UNDEFINED,
-                width, height,
-                window_flags | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
+                _rectOrigin.w, _rectOrigin.h,
+                window_flags | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL
+            );
 
             if (_window == IntPtr.Zero)
             {
                 // In the case that the window could not be made...
                 Debug.WriteLine($"Could not create window: {SDL.SDL_GetError()}");
-                return 1;
+                return;
             }
 
             _renderer = SDL.SDL_CreateRenderer(_window,
                 index: -1,
-                flags: (SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED |
-                        SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC));
+                flags: (SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC));
 
             if (_renderer == IntPtr.Zero)
             {
                 Debug.WriteLine($"Could not create renderer: {SDL.SDL_GetError()}");
-                return 1;
+                return;
             }
 
             _texture = SDL.SDL_CreateTexture(_renderer,
                 SDL.SDL_PIXELFORMAT_YV12,
-                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING,
-                width,
-                height);
+                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, _rectOrigin.w, _rectOrigin.h
+            );
 
             if (_texture == IntPtr.Zero)
             {
                 Debug.WriteLine($"Could not create texture: {SDL.SDL_GetError()}");
-                return 1;
+                return;
             }
-
-            _rect = new SDL.SDL_Rect()
-            {
-                x = 0,
-                y = 0,
-                w = width,
-                h = height
-            };
-
-            Initialized = true;
-            return 0;
         }
 
-        public void PushDecodedData(byte[][] yuvData, int[] lineSizes)
-        {
-            _videoData.Enqueue(new Tuple<byte[][], int[]>(yuvData, lineSizes));
-        }
-
-        public int Update(byte[][] yuvData, int[] lineSizes)
+        public void Update(byte[][] yuvData, int[] lineSizes)
         {
             if (!Initialized)
             {
                 Debug.WriteLine("SDL Video not initialized yet...");
-                return -1;
+                return;
             }
 
-            int ret = -1;
+            var tFrameRect = new SDL.SDL_Rect { x = 0, y = 0, w = _rectOrigin.w, h = _rectOrigin.h };
             fixed (byte* y = yuvData[0], u = yuvData[1], v = yuvData[2])
             {
-                ret = SDL.SDL_UpdateYUVTexture(
+                if (SDL.SDL_UpdateYUVTexture(
                     _texture,
-                    ref _rect,
+                    ref _rectOrigin,
                     (IntPtr)y,
                     lineSizes[0],
                     (IntPtr)u,
                     lineSizes[1],
                     (IntPtr)v,
                     lineSizes[2]
-                );
+                ) < 0)
+                {
+                    Debug.WriteLine($"Could not update texture: {SDL.SDL_GetError()}");
+                    return;
+                }
             }
 
-            if (ret < 0)
-            {
-                Debug.WriteLine($"Could not update texture: {SDL.SDL_GetError()}");
-                return ret;
-            }
             SDL.SDL_RenderClear(_renderer);
-            SDL.SDL_RenderCopy(_renderer, _texture, ref _rect, ref _rect);
+            SDL.SDL_RenderCopy(_renderer, _texture, IntPtr.Zero, IntPtr.Zero);
             SDL.SDL_RenderPresent(_renderer);
-            return ret;
         }
 
-        public int Close()
+        public void Close()
         {
             SDL.SDL_DestroyTexture(_texture);
             SDL.SDL_DestroyRenderer(_renderer);
             SDL.SDL_DestroyWindow(_window);
-
-            return 0;
+            SDL.SDL_Quit();
         }
     }
 }

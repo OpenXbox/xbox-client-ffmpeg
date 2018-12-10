@@ -31,39 +31,50 @@ namespace SmartGlass.Nano.FFmpeg
             _audioHandler.CreateDecoderContext();
             _videoHandler.CreateDecoderContext();
 
-            _audioRenderer = new SdlAudio();
-            _videoRenderer = new SdlVideo();
+            _audioRenderer = new SdlAudio((int)_audioFormat.SampleRate, (int)_audioFormat.Channels);
+            _videoRenderer = new SdlVideo((int)videoFormat.Width, (int)videoFormat.Height);
 
             _audioHandler.ProcessDecodedFrame += OnDecodedAudioFrame;
             _videoHandler.ProcessDecodedFrame += OnDecodedVideoFrame;
         }
 
+        /// <summary>
+        /// Start decoding threads
+        /// </summary>
         public void Start()
         {
-            _videoRenderer.Initialize(
-                width: (int)_videoFormat.Width,
-                height: (int)_videoFormat.Height,
-                fullscreen: false);
-
-            _audioRenderer.Initialize(
-                samplerate: (int)_audioFormat.SampleRate,
-                channels: (int)_audioFormat.Channels,
-                samples: 1024);
-
-            // Start decoding threads
             _audioHandler.DecodingThread().Start();
             _videoHandler.DecodingThread().Start();
         }
 
-        /* Called by Audio/Video handlers' decoding threads */
+        /// <summary>
+        /// Callback for Video decoder.
+        /// Gets called when a decoded frame is ready
+        /// </summary>
+        /// <param name="sender">Sending context</param>
+        /// <param name="args">Decoded video frame event arguments</param>
         public void OnDecodedVideoFrame(object sender, VideoFrameDecodedArgs args)
         {
+            if (!_videoRenderer.Initialized)
+            {
+                _videoRenderer.Initialize();
+            }
             // Enqueue decoded video frame in renderer
             _videoRenderer.Update(args.FrameData, args.LineSizes);
         }
 
+        /// <summary>
+        /// Callback for Audio decoder.
+        /// Gets called when a decoded sample is ready
+        /// </summary>
+        /// <param name="sender">Sending context</param>
+        /// <param name="args">Decoded audio frame event arguments</param>
         public void OnDecodedAudioFrame(object sender, AudioFrameDecodedArgs args)
         {
+            if (!_audioRenderer.Initialized)
+            {
+                _audioRenderer.Initialize(1024);
+            }
             // Enqueue decoded audio sample in renderer
             _audioRenderer.Update(args.FrameData);
         }
@@ -102,6 +113,14 @@ namespace SmartGlass.Nano.FFmpeg
         public void ConsumeInputFeedbackFrame(object sender, InputFrameEventArgs args)
         {
             throw new NotImplementedException();
+        }
+
+        public void Close()
+        {
+            _audioRenderer.Close();
+            _videoRenderer.Close();
+            _audioHandler.Dispose();
+            _videoHandler.Dispose();
         }
     }
 }

@@ -10,22 +10,25 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public unsafe class SdlAudio
     {
-        public bool Initialized { get; private set; }
+        public bool Initialized => _dev == 0;
 
-        private uint _dev;
-        private Queue<byte[]> _audioData;
+        uint _dev;
+        Queue<byte[]> _audioData;
+        int _sampleRate;
+        int _channels;
 
-        public SdlAudio()
+        public SdlAudio(int sampleRate, int channels)
         {
-            Initialized = false;
+            _sampleRate = sampleRate;
+            _channels = channels;
             _dev = 0;
             _audioData = new Queue<byte[]>();
         }
 
-        public int Initialize(int samplerate, int channels, int samples)
+        public int Initialize(int samples)
         {
-            SDL.SDL_AudioSpec want = new SDL.SDL_AudioSpec();
-            SDL.SDL_AudioSpec have = new SDL.SDL_AudioSpec();
+            var desired = new SDL.SDL_AudioSpec();
+            var obtained = new SDL.SDL_AudioSpec();
 
             int ret = SDL.SDL_Init(SDL.SDL_INIT_AUDIO);
             if (ret < 0)
@@ -34,16 +37,16 @@ namespace SmartGlass.Nano.FFmpeg
                 return 1;
             }
 
-            want.freq = samplerate;
-            want.format = SDL.AUDIO_F32;
-            want.channels = (byte)channels;
-            want.samples = (ushort)samples;
+            desired.freq = _sampleRate;
+            desired.format = SDL.AUDIO_F32;
+            desired.channels = (byte)_channels;
+            desired.samples = (ushort)samples;
 
             _dev = SDL.SDL_OpenAudioDevice(
                 device: null,
                 iscapture: 0,
-                desired: ref want,
-                obtained: out have,
+                desired: ref desired,
+                obtained: out obtained,
                 allowed_changes: (int)SDL.SDL_AUDIO_ALLOW_FORMAT_CHANGE);
 
             if (_dev == 0)
@@ -52,13 +55,12 @@ namespace SmartGlass.Nano.FFmpeg
                 return 1;
             }
 
-            if (have.format != want.format)
+            if (obtained.format != desired.format)
             { /* we let this one thing change. */
                 Debug.WriteLine($"We didn't get Float32 audio format.");
             }
             SDL.SDL_PauseAudioDevice(_dev, 0); /* start audio playing. */
 
-            Initialized = true;
             return 0;
         }
 

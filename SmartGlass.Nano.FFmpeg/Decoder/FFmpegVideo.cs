@@ -85,7 +85,7 @@ namespace SmartGlass.Nano.FFmpeg
                 case VideoCodec.RGB:
                     throw new NotImplementedException("FFmpegVideo: VideoCodec.RGB");
                 default:
-                    throw new NotSupportedException(String.Format("Invalid AudioCodec: {0}", codecID));
+                    throw new NotSupportedException($"Invalid VideoCodec: {codecID}");
             }
 
             if (avSourcePixelFormat != avTargetPixelFormat)
@@ -212,12 +212,13 @@ namespace SmartGlass.Nano.FFmpeg
                         if (encodedDataQueue.Count > 0)
                         {
                             frame = encodedDataQueue.Dequeue();
-                            EnqueuePacketForDecoding(frame.RawData);
+                            if (frame != null)
+                                EnqueuePacketForDecoding(frame.RawData);
                         }
                     }
                     catch (InvalidOperationException e)
                     {
-                        Debug.WriteLine("FFmpegAudio Loop: {0}", e);
+                        Debug.WriteLine("FFmpegVideo Loop: {0}", e);
                     }
                 }
             });
