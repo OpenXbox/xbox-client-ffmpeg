@@ -30,7 +30,7 @@ namespace SmartGlass.Nano.FFmpeg
             int ret = SDL.SDL_Init(SDL.SDL_INIT_AUDIO);
             if (ret < 0)
             {
-                Debug.WriteLine("SDL_Init AUDIO failed: {0}", SDL.SDL_GetError());
+                Debug.WriteLine($"SDL_Init AUDIO failed: {SDL.SDL_GetError()}");
                 return 1;
             }
 
@@ -48,13 +48,13 @@ namespace SmartGlass.Nano.FFmpeg
 
             if (_dev == 0)
             {
-                Debug.WriteLine("Failed to open audio: {0}", SDL.SDL_GetError());
+                Debug.WriteLine($"Failed to open audio: {SDL.SDL_GetError()}");
                 return 1;
             }
 
             if (have.format != want.format)
             { /* we let this one thing change. */
-                Debug.WriteLine("We didn't get Float32 audio format.");
+                Debug.WriteLine($"We didn't get Float32 audio format.");
             }
             SDL.SDL_PauseAudioDevice(_dev, 0); /* start audio playing. */
 

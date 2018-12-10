@@ -32,7 +32,7 @@ namespace SmartGlass.Nano.FFmpeg
             int ret = SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
             if (ret < 0)
             {
-                Debug.WriteLine("SDL_Init VIDEO failed: {0}", SDL.SDL_GetError());
+                Debug.WriteLine($"Could not init SDL video: {SDL.SDL_GetError()}");
                 return 1;
             }
 
@@ -50,7 +50,7 @@ namespace SmartGlass.Nano.FFmpeg
             if (_window == IntPtr.Zero)
             {
                 // In the case that the window could not be made...
-                Debug.WriteLine("Could not create window: {0}", SDL.SDL_GetError());
+                Debug.WriteLine($"Could not create window: {SDL.SDL_GetError()}");
                 return 1;
             }
 
@@ -61,7 +61,7 @@ namespace SmartGlass.Nano.FFmpeg
 
             if (_renderer == IntPtr.Zero)
             {
-                Debug.WriteLine("Could not create renderer: {0}", SDL.SDL_GetError());
+                Debug.WriteLine($"Could not create renderer: {SDL.SDL_GetError()}");
                 return 1;
             }
 
@@ -73,7 +73,7 @@ namespace SmartGlass.Nano.FFmpeg
 
             if (_texture == IntPtr.Zero)
             {
-                Debug.WriteLine("Could not create texture: {0}", SDL.SDL_GetError());
+                Debug.WriteLine($"Could not create texture: {SDL.SDL_GetError()}");
                 return 1;
             }
 
@@ -119,7 +119,7 @@ namespace SmartGlass.Nano.FFmpeg
 
             if (ret < 0)
             {
-                Debug.WriteLine("Could not update texture: {0}", SDL.SDL_GetError());
+                Debug.WriteLine($"Could not update texture: {SDL.SDL_GetError()}");
                 return ret;
             }
             SDL.SDL_RenderClear(_renderer);

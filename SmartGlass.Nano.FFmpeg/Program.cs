@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using SmartGlass.Channels;
@@ -47,20 +48,18 @@ namespace SmartGlass.Nano.FFmpeg
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Failed to load tokens from \'{0}\', error: {1}",
-                        tokenPath, e.Message);
+                    Console.WriteLine($"Failed to load tokens from \'{tokenPath}\', error: {e.Message}");
                     return;
                 }
 
-                AuthenticationService authenticator = AuthenticationService
-                                                        .LoadFromFile(fs);
+                AuthenticationService authenticator = AuthenticationService.LoadFromFile(fs);
                 try
                 {
                     authenticator.Authenticate();
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Failed to refresh XBL tokens, error: {0}", e.Message);
+                    Console.WriteLine($"Failed to refresh XBL tokens, error: {e.Message}");
                     return;
                 }
                 userHash = authenticator.UserInformation.Userhash;
@@ -69,7 +68,7 @@ namespace SmartGlass.Nano.FFmpeg
 
             string hostName = args[0];
 
-            Console.WriteLine("Connecting to console {0}...", hostName);
+            Console.WriteLine($"Connecting to console {hostName}...");
             GamestreamConfiguration config = GamestreamConfiguration.GetStandardConfig();
 
             SmartGlassClient client = null;
@@ -80,7 +79,7 @@ namespace SmartGlass.Nano.FFmpeg
             }
             catch (Exception e)
             {
-                Console.WriteLine("Connection timed out! msg: {0}", e);
+                Console.WriteLine($"Connection timed out! msg: {e.Message}");
                 return;
             }
 
@@ -123,6 +122,9 @@ namespace SmartGlass.Nano.FFmpeg
 
             SdlProducer producer = new SdlProducer(nano);
             producer.MainLoop();
+
+            // finally (dirty)
+            Process.GetCurrentProcess().Kill();
         }
     }
 }
