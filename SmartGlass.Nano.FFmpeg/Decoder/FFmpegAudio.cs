@@ -26,7 +26,7 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void PushData(AACFrame data) => encodedDataQueue.Enqueue(data);
 
-        public FFmpegAudio() : base(audio: true)
+        public FFmpegAudio() : base()
         {
             encodedDataQueue = new Queue<AACFrame>();
         }

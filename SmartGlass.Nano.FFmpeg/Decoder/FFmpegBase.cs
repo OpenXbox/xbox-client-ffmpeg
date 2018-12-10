@@ -22,16 +22,6 @@ namespace SmartGlass.Nano.FFmpeg
                 return (pCodec != null && ffmpeg.av_codec_is_encoder(pCodec) > 0);
             }
         }
-        public bool IsVideo
-        {
-            get;
-            internal set;
-        }
-        public bool IsAudio
-        {
-            get;
-            internal set;
-        }
         public bool Initialized
         {
             get;
@@ -52,29 +42,10 @@ namespace SmartGlass.Nano.FFmpeg
         internal AVPacket* pPacket;
 
 
-        public FFmpegBase(bool video = false, bool audio = false)
+        public FFmpegBase()
         {
             this.Initialized = false;
             this.ContextCreated = false;
-            this.IsAudio = false;
-            this.IsVideo = false;
-
-            if (video && audio)
-            {
-                throw new InvalidProgramException("FFmpeg De-/Encoder cannot be both, audio and video");
-            }
-            else if (video)
-            {
-                this.IsVideo = true;
-            }
-            else if (audio)
-            {
-                this.IsAudio = true;
-            }
-            else
-            {
-                throw new InvalidProgramException("FFmpeg not created with info wether audio or video");
-            }
         }
 
         /// <summary>
@@ -86,6 +57,12 @@ namespace SmartGlass.Nano.FFmpeg
         /// Sets the resampler parameters.
         /// </summary>
         internal abstract void SetResamplerParams();
+
+        /// <summary>
+        /// Start decoding thread
+        /// </summary>
+        /// <returns></returns>
+        public abstract Thread DecodingThread();
 
         /// <summary>
         /// Inits the Codec context.
@@ -205,8 +182,6 @@ namespace SmartGlass.Nano.FFmpeg
             ffmpeg.av_packet_unref(pPacket);
             return 0;
         }
-
-        public abstract Thread DecodingThread();
 
         /*
          * TODO: Encoding stuff

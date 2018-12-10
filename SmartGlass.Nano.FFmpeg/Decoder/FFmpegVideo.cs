@@ -31,7 +31,7 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void PushData(H264Frame data) => encodedDataQueue.Enqueue(data);
 
-        public FFmpegVideo() : base(video: true)
+        public FFmpegVideo() : base()
         {
             encodedDataQueue = new Queue<H264Frame>();
         }
