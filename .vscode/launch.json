@@ -1,14 +1,11 @@
 {
-    // Use IntelliSense to find out which attributes exist for C# debugging
-    // Use hover for the description of the existing attributes
-    // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
     "version": "0.2.0",
     "configurations": [{
             "name": ".NET Core Launch (FFmpeg client)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Build Nano FFmpeg",
-            "program": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.1/SmartGlass.Nano.FFmpeg.dll",
+            "program": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.2/SmartGlass.Nano.FFmpeg.dll",
             "args": [
                 "10.0.0.241"
             ],
