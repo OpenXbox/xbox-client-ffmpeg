@@ -117,26 +117,31 @@ namespace SmartGlass.Nano.FFmpeg
         /// <summary>
         /// Sets the codec context parameters.
         /// </summary>
-        internal override void SetCodecContextParams()
+        internal override void SetCodecContextParams(AVCodecContext* codecContext)
         {
-            pCodecContext->width = videoWidth;
-            pCodecContext->height = videoHeight;
-            pCodecContext->time_base = avTimebase;
-            pCodecContext->pix_fmt = avSourcePixelFormat;
+            codecContext->width = videoWidth;
+            codecContext->height = videoHeight;
+            codecContext->time_base = avTimebase;
+            codecContext->pix_fmt = avSourcePixelFormat;
         }
 
         /// <summary>
         /// Sets the resampler parameters.
         /// </summary>
-        internal override void SetResamplerParams()
+        internal override SwrContext* CreateResampler(AVCodecContext* codecContext)
         {
-            ffmpeg.av_opt_set_pixel_fmt(pResampler, "in_pixel_fmt", pCodecContext->pix_fmt, 0);
-            ffmpeg.av_opt_set_video_rate(pResampler, "in_video_rate", pCodecContext->time_base, 0);
-            ffmpeg.av_opt_set_image_size(pResampler, "in_image_size", pCodecContext->width, pCodecContext->height, 0);
+            SwrContext* resampler = ffmpeg.swr_alloc();
 
-            ffmpeg.av_opt_set_pixel_fmt(pResampler, "out_pixel_fmt", avTargetPixelFormat, 0);
-            ffmpeg.av_opt_set_video_rate(pResampler, "out_video_rate", pCodecContext->time_base, 0);
-            ffmpeg.av_opt_set_image_size(pResampler, "out_image_size", pCodecContext->width, pCodecContext->height, 0);
+            ffmpeg.av_opt_set_pixel_fmt(resampler, "in_pixel_fmt", codecContext->pix_fmt, 0);
+            ffmpeg.av_opt_set_video_rate(resampler, "in_video_rate", codecContext->time_base, 0);
+            ffmpeg.av_opt_set_image_size(resampler, "in_image_size", codecContext->width, codecContext->height, 0);
+
+            ffmpeg.av_opt_set_pixel_fmt(resampler, "out_pixel_fmt", avTargetPixelFormat, 0);
+            ffmpeg.av_opt_set_video_rate(resampler, "out_video_rate", codecContext->time_base, 0);
+            ffmpeg.av_opt_set_image_size(resampler, "out_image_size", codecContext->width, codecContext->height, 0);
+
+            ffmpeg.swr_init(resampler);
+            return resampler;
         }
 
         /// <summary>

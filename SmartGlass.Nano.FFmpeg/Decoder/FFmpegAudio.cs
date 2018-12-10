@@ -102,25 +102,30 @@ namespace SmartGlass.Nano.FFmpeg
                 doResample = true;
         }
 
-        internal override void SetCodecContextParams()
+        internal override void SetCodecContextParams(AVCodecContext* codecContext)
         {
-            pCodecContext->sample_rate = sampleRate;
-            pCodecContext->sample_fmt = avSourceSampleFormat;
-            pCodecContext->channels = channels;
-            pCodecContext->channel_layout = (ulong)avChannelLayout;
+            codecContext->sample_rate = sampleRate;
+            codecContext->sample_fmt = avSourceSampleFormat;
+            codecContext->channels = channels;
+            codecContext->channel_layout = (ulong)avChannelLayout;
         }
 
-        internal override void SetResamplerParams()
+        internal override SwrContext* CreateResampler(AVCodecContext* codecContext)
         {
-            ffmpeg.av_opt_set_int(pResampler, "in_channel_count", pCodecContext->channels, 0);
-            ffmpeg.av_opt_set_channel_layout(pResampler, "in_channel_layout", (long)pCodecContext->channel_layout, 0);
-            ffmpeg.av_opt_set_int(pResampler, "in_sample_rate", pCodecContext->sample_rate, 0);
-            ffmpeg.av_opt_set_sample_fmt(pResampler, "in_sample_fmt", pCodecContext->sample_fmt, 0);
+            SwrContext* resampler = ffmpeg.swr_alloc();
 
-            ffmpeg.av_opt_set_int(pResampler, "out_channel_count", pCodecContext->channels, 0);
-            ffmpeg.av_opt_set_channel_layout(pResampler, "out_channel_layout", (long)pCodecContext->channel_layout, 0);
-            ffmpeg.av_opt_set_int(pResampler, "out_sample_rate", pCodecContext->sample_rate, 0);
-            ffmpeg.av_opt_set_sample_fmt(pResampler, "out_sample_fmt", avTargetSampleFormat, 0);
+            ffmpeg.av_opt_set_int(resampler, "in_channel_count", codecContext->channels, 0);
+            ffmpeg.av_opt_set_channel_layout(resampler, "in_channel_layout", (long)codecContext->channel_layout, 0);
+            ffmpeg.av_opt_set_int(resampler, "in_sample_rate", codecContext->sample_rate, 0);
+            ffmpeg.av_opt_set_sample_fmt(resampler, "in_sample_fmt", codecContext->sample_fmt, 0);
+
+            ffmpeg.av_opt_set_int(resampler, "out_channel_count", codecContext->channels, 0);
+            ffmpeg.av_opt_set_channel_layout(resampler, "out_channel_layout", (long)codecContext->channel_layout, 0);
+            ffmpeg.av_opt_set_int(resampler, "out_sample_rate", codecContext->sample_rate, 0);
+            ffmpeg.av_opt_set_sample_fmt(resampler, "out_sample_fmt", avTargetSampleFormat, 0);
+
+            ffmpeg.swr_init(resampler);
+            return resampler;
         }
 
         /// <summary>

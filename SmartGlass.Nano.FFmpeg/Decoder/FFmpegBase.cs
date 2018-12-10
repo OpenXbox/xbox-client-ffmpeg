@@ -34,29 +34,31 @@ namespace SmartGlass.Nano.FFmpeg
         }
         internal bool doResample = false;
         internal AVCodecID avCodecID;
+        internal AVFrame* pDecodedFrame;
+        internal AVPacket* pPacket;
 
         internal AVCodec* pCodec;
         internal AVCodecContext* pCodecContext;
         internal SwrContext* pResampler;
-        internal AVFrame* pDecodedFrame;
-        internal AVPacket* pPacket;
-
 
         public FFmpegBase()
         {
-            this.Initialized = false;
-            this.ContextCreated = false;
+            Initialized = false;
+            ContextCreated = false;
+
+            pDecodedFrame = ffmpeg.av_frame_alloc();
+            pPacket = ffmpeg.av_packet_alloc();
         }
 
         /// <summary>
         /// Sets the codec context parameters.
         /// </summary>
-        internal abstract void SetCodecContextParams();
+        internal abstract void SetCodecContextParams(AVCodecContext* codecContext);
 
         /// <summary>
         /// Sets the resampler parameters.
         /// </summary>
-        internal abstract void SetResamplerParams();
+        internal abstract SwrContext* CreateResampler(AVCodecContext* codecContext);
 
         /// <summary>
         /// Start decoding thread
@@ -79,7 +81,6 @@ namespace SmartGlass.Nano.FFmpeg
                 throw new InvalidOperationException("Context already initialized!");
             }
 
-            // ffmpeg.av_register_all();
             if (encoder)
                 pCodec = ffmpeg.avcodec_find_encoder(avCodecID);
             else
@@ -96,7 +97,7 @@ namespace SmartGlass.Nano.FFmpeg
             }
 
             // Call to abstract method
-            SetCodecContextParams();
+            SetCodecContextParams(pCodecContext);
 
             if ((pCodec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) == ffmpeg.AV_CODEC_CAP_TRUNCATED)
                 pCodecContext->flags |= ffmpeg.AV_CODEC_FLAG_TRUNCATED;
@@ -108,21 +109,14 @@ namespace SmartGlass.Nano.FFmpeg
 
             if (doResample)
             {
-                pResampler = ffmpeg.swr_alloc();
                 // Call to abstract method
-                SetResamplerParams();
-
-                // Initialize resampler
-                ffmpeg.swr_init(pResampler);
+                pResampler = CreateResampler(pCodecContext);
                 if (ffmpeg.swr_is_initialized(pResampler) <= 0)
                 {
                     throw new InvalidOperationException("Failed to init resampler");
                 }
             }
 
-            pDecodedFrame = ffmpeg.av_frame_alloc();
-            pPacket = ffmpeg.av_packet_alloc();
-            //ffmpeg.av_init_packet(this.pPacket);
             ContextCreated = true;
         }
 
