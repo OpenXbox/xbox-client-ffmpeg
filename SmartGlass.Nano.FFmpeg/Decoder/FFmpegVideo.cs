@@ -13,19 +13,19 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public unsafe class FFmpegVideo : FFmpegBase
     {
-        private uint bpp;
-        private uint bytes;
-        private ulong redMask;
-        private ulong greenMask;
-        private ulong blueMask;
-        private int fps;
-        private int videoWidth;
-        private int videoHeight;
-        private AVPixelFormat avSourcePixelFormat;
-        private AVPixelFormat avTargetPixelFormat;
-        private AVRational avTimebase;
+        uint bpp;
+        uint bytes;
+        ulong redMask;
+        ulong greenMask;
+        ulong blueMask;
+        int fps;
+        int videoWidth;
+        int videoHeight;
+        AVPixelFormat avSourcePixelFormat;
+        AVPixelFormat avTargetPixelFormat;
+        AVRational avTimebase;
 
-        private Queue<H264Frame> encodedDataQueue;
+        Queue<H264Frame> encodedDataQueue;
 
         public event EventHandler<VideoFrameDecodedArgs> ProcessDecodedFrame;
 
@@ -92,17 +92,17 @@ namespace SmartGlass.Nano.FFmpeg
                 doResample = true;
             Initialized = true;
 
-            Debug.WriteLine("Codec ID: {0}", avCodecID);
-            Debug.WriteLine("Source Pixel Format: {0}", avSourcePixelFormat);
-            Debug.WriteLine("Target Pixel Format: {0}", avTargetPixelFormat);
-            Debug.WriteLine("Resolution: {0}x{1}, FPS: {2}", videoWidth, videoHeight, fps);
+            Debug.WriteLine($"Codec ID: {avCodecID}");
+            Debug.WriteLine($"Source Pixel Format: {avSourcePixelFormat}");
+            Debug.WriteLine($"Target Pixel Format: {avTargetPixelFormat}");
+            Debug.WriteLine($"Resolution: {videoWidth}x{videoHeight}, FPS: {fps}");
         }
 
         /// <summary>
         /// Overwrites the target Video pixelformat.
         /// </summary>
         /// <param name="targetFormat">Target format.</param>
-        private void OverwriteTargetPixelformat(AVPixelFormat targetFormat)
+        void OverwriteTargetPixelformat(AVPixelFormat targetFormat)
         {
             if (ContextCreated)
             {
@@ -144,7 +144,7 @@ namespace SmartGlass.Nano.FFmpeg
         /// </summary>
         /// <returns>The return value of avcodec_receive_frame: 0 on success, smaller 0 on failure </returns>
         /// <param name="decodedFrame">OUT: decoded Frame</param>
-        private int DequeueDecodedFrame(out byte[][] frameData, out int[] lineSizes)
+        int DequeueDecodedFrame(out byte[][] frameData, out int[] lineSizes)
         {
             frameData = new byte[3][];
             lineSizes = new int[] { 0, 0, 0 };
@@ -218,7 +218,7 @@ namespace SmartGlass.Nano.FFmpeg
                     }
                     catch (InvalidOperationException e)
                     {
-                        Debug.WriteLine("FFmpegVideo Loop: {0}", e);
+                        Debug.WriteLine($"FFmpegVideo Loop: {e}");
                     }
                 }
             });

@@ -19,7 +19,7 @@ namespace SmartGlass.Nano.FFmpeg
         public InputAnalogue Analog { get; private set; }
         public InputExtension Extension { get; private set; }
 
-        private IntPtr _controller;
+        IntPtr _controller;
         public SdlInput(string controllerMappingFilepath)
         {
             ControllerMappingFilepath = controllerMappingFilepath;

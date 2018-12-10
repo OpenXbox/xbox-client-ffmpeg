@@ -7,7 +7,7 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public static class SdlInputMapping
     {
-        private static Dictionary<SDL_GameControllerButton, NanoGamepadButton> ButtonMap =
+        static Dictionary<SDL_GameControllerButton, NanoGamepadButton> ButtonMap =
             new Dictionary<SDL_GameControllerButton, NanoGamepadButton>()
             {
                 {SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A, NanoGamepadButton.A},
@@ -27,7 +27,7 @@ namespace SmartGlass.Nano.FFmpeg
                 {SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE, NanoGamepadButton.Guide}
             };
 
-        private static Dictionary<SDL_GameControllerAxis, NanoGamepadAxis> AxisMap =
+        static Dictionary<SDL_GameControllerAxis, NanoGamepadAxis> AxisMap =
             new Dictionary<SDL_GameControllerAxis, NanoGamepadAxis>()
             {
                 {SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, NanoGamepadAxis.LeftX},

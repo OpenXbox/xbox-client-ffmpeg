@@ -91,7 +91,7 @@ namespace SmartGlass.Nano.FFmpeg
         /// Inits the Codec context.
         /// </summary>
         /// <param name="encoder">If set to <c>true</c> encoder.</param>
-        private void CreateContext(bool encoder = false)
+        void CreateContext(bool encoder = false)
         {
             if (!Initialized)
             {
@@ -199,7 +199,7 @@ namespace SmartGlass.Nano.FFmpeg
             }
             if (ret < 0)
             {
-                Console.WriteLine("Error: Code: {0}, Msg:{1}", ret, FFmpegHelper.av_strerror(ret));
+                Console.WriteLine($"Error: Code: {ret}, Msg:{FFmpegHelper.av_strerror(ret)}");
             }
 
             ffmpeg.av_packet_unref(pPacket);
@@ -210,7 +210,7 @@ namespace SmartGlass.Nano.FFmpeg
 
         /*
          * TODO: Encoding stuff
-        private void EncodeFrameInternal(AVFrame* frame)
+        void EncodeFrameInternal(AVFrame* frame)
         {
             AVPacket* packet = ffmpeg.av_packet_alloc();
             if (ffmpeg.avcodec_send_frame(pCodecContext, frame) < 0)

@@ -12,15 +12,15 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public unsafe class FFmpegAudio : FFmpegBase
     {
-        private uint sampleSize;
-        private uint sampleType;
-        private int sampleRate;
-        private int channels;
-        private long avChannelLayout;
-        private AVSampleFormat avSourceSampleFormat;
-        private AVSampleFormat avTargetSampleFormat;
+        uint sampleSize;
+        uint sampleType;
+        int sampleRate;
+        int channels;
+        long avChannelLayout;
+        AVSampleFormat avSourceSampleFormat;
+        AVSampleFormat avTargetSampleFormat;
 
-        private Queue<AACFrame> encodedDataQueue;
+        Queue<AACFrame> encodedDataQueue;
 
         public event EventHandler<AudioFrameDecodedArgs> ProcessDecodedFrame;
 
@@ -58,7 +58,7 @@ namespace SmartGlass.Nano.FFmpeg
             this.channels = channels;
             avChannelLayout = ffmpeg.av_get_default_channel_layout(channels);
 
-            switch(codecID)
+            switch (codecID)
             {
                 case AudioCodec.AAC:
                     avCodecID = AVCodecID.AV_CODEC_ID_AAC;
@@ -73,24 +73,24 @@ namespace SmartGlass.Nano.FFmpeg
                 case AudioCodec.PCM:
                     throw new NotImplementedException("FFmpegAudio: AudioCodec.PCM");
                 default:
-                    throw new NotSupportedException(String.Format("Invalid AudioCodec: {0}", codecID));
+                    throw new NotSupportedException($"Invalid AudioCodec: {codecID}");
             }
 
             if (avTargetSampleFormat != avSourceSampleFormat)
                 doResample = true;
             Initialized = true;
 
-            Debug.WriteLine("Codec ID: {0}", avCodecID);
-            Debug.WriteLine("Source Sample Format: {0}", avSourceSampleFormat);
-            Debug.WriteLine("Target Sample Format: {0}", avTargetSampleFormat);
-            Debug.WriteLine("Channels: {0}, SampleRate: {1}", channels, sampleRate);
+            Debug.WriteLine($"Codec ID: {avCodecID}");
+            Debug.WriteLine($"Source Sample Format: {avSourceSampleFormat}");
+            Debug.WriteLine($"Target Sample Format: {avTargetSampleFormat}");
+            Debug.WriteLine($"Channels: {channels}, SampleRate: {sampleRate}");
         }
 
         /// <summary>
         /// Overwrites the target Audio sampleformat.
         /// </summary>
         /// <param name="targetFormat">Target format.</param>
-        private void OverwriteTargetSampleformat(AVSampleFormat targetFormat)
+        void OverwriteTargetSampleformat(AVSampleFormat targetFormat)
         {
             if (ContextCreated)
             {
@@ -128,7 +128,7 @@ namespace SmartGlass.Nano.FFmpeg
         /// </summary>
         /// <returns>The decoded audio frame.</returns>
         /// <param name="decodedFrame">OUT: Decoded Audio frame.</param>
-        private int DequeueDecodedFrame(out byte[] frameData)
+        int DequeueDecodedFrame(out byte[] frameData)
         {
             frameData = null;
 
@@ -210,7 +210,7 @@ namespace SmartGlass.Nano.FFmpeg
                     }
                     catch (InvalidOperationException e)
                     {
-                        Debug.WriteLine("FFmpegAudio Loop: {0}", e);
+                        Debug.WriteLine($"FFmpegAudio Loop: {e}");
                     }
                 }
             });
