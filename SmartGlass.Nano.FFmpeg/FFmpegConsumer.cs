@@ -8,14 +8,14 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public class FFmpegConsumer : IConsumer
     {
-        private AudioFormat _audioFormat;
-        private VideoFormat _videoFormat;
-
-        private VideoAssembler _videoAssembler;
-        private FFmpegAudio _audioHandler;
-        private FFmpegVideo _videoHandler;
-        private SdlAudio _audioRenderer;
-        private SdlVideo _videoRenderer;
+        AudioFormat _audioFormat;
+        VideoFormat _videoFormat;
+        VideoAssembler _videoAssembler;
+        FFmpegAudio _audioHandler;
+        FFmpegVideo _videoHandler;
+        SdlAudio _audioRenderer;
+        SdlVideo _videoRenderer;
+        bool _initalSeenPPS;
 
         public FFmpegConsumer(AudioFormat audioFormat, VideoFormat videoFormat)
         {
@@ -88,14 +88,15 @@ namespace SmartGlass.Nano.FFmpeg
 
         public void ConsumeVideoData(object sender, VideoDataEventArgs args)
         {
+            if (!_initalSeenPPS && args.VideoData.Header.Marker)
+                _initalSeenPPS = true;
+
             // TODO: Sorting
             H264Frame frame = _videoAssembler.AssembleVideoFrame(args.VideoData);
 
-            if (frame == null)
-                return;
-
             // Enqueue encoded video data in decoder
-            _videoHandler.PushData(frame);
+            if (frame != null && _initalSeenPPS)
+                _videoHandler.PushData(frame);
         }
 
         public void ConsumeInputFeedbackFrame(object sender, InputFrameEventArgs args)
