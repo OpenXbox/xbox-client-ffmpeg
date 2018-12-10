@@ -1,0 +1,17 @@
+language: csharp
+mono: none
+dotnet: 2.2.100
+
+matrix:
+  exclude:
+    - os: windows # Windows Server version 1803
+  include:
+    - os: linux # Ubuntu 16.04
+      dist: xenial
+    - os: osx # OSX 10.12
+      osx_image: xcode9.2
+
+script:
+  - dotnet --info
+  - dotnet restore
+  - dotnet build
