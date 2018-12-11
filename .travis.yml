@@ -5,13 +5,17 @@ dotnet: 2.2.100
 matrix:
   exclude:
     - os: windows # Windows Server version 1803
+      env: PUBLISH_TARGET=win-x64
   include:
     - os: linux # Ubuntu 16.04
       dist: xenial
+      env: PUBLISH_TARGET=linux-x64
     - os: osx # OSX 10.12
       osx_image: xcode9.2
+      env: PUBLISH_TARGET=osx.10.12-x64
 
 script:
   - dotnet --info
   - dotnet restore
   - dotnet build
+  - dotnet publish -r $PUBLISH_TARGET
