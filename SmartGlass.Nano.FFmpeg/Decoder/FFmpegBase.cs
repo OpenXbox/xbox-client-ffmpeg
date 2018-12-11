@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace SmartGlass.Nano.FFmpeg
+namespace SmartGlass.Nano.FFmpeg.Decoder
 {
     public unsafe abstract class FFmpegBase : IDisposable
     {

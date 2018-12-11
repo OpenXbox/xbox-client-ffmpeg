@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using static SDL2.SDL;
 
-namespace SmartGlass.Nano.FFmpeg
+namespace SmartGlass.Nano.FFmpeg.Producer
 {
     public static class SdlInputMapping
     {

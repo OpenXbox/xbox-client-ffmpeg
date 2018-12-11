@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SDL2;
 
-namespace SmartGlass.Nano.FFmpeg
+namespace SmartGlass.Nano.FFmpeg.Producer
 {
     public class SdlProducer
     {

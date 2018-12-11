@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using SmartGlass.Nano.Packets;
 using System.Diagnostics;
 
-namespace SmartGlass.Nano.FFmpeg
+namespace SmartGlass.Nano.FFmpeg.Renderer
 {
     public unsafe class SdlAudio
     {

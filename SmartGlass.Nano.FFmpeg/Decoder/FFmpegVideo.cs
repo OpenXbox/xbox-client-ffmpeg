@@ -9,7 +9,7 @@ using SmartGlass.Nano.Consumer;
 using SmartGlass.Nano.Packets;
 using FFmpeg.AutoGen;
 
-namespace SmartGlass.Nano.FFmpeg
+namespace SmartGlass.Nano.FFmpeg.Decoder
 {
     public unsafe class FFmpegVideo : FFmpegBase
     {

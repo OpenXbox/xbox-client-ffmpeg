@@ -1,9 +1,12 @@
 ﻿using System;
+using SDL2;
 using SmartGlass.Common;
 using SmartGlass.Nano.Consumer;
 using SmartGlass.Nano.Packets;
 
-using SDL2;
+using SmartGlass.Nano.FFmpeg.Renderer;
+using SmartGlass.Nano.FFmpeg.Producer;
+using SmartGlass.Nano.FFmpeg.Decoder;
 
 namespace SmartGlass.Nano.FFmpeg
 {

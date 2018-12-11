@@ -10,6 +10,8 @@ using SmartGlass.Nano.Consumer;
 using SmartGlass.Nano.Packets;
 using XboxWebApi.Authentication;
 
+using SmartGlass.Nano.FFmpeg.Producer;
+
 namespace SmartGlass.Nano.FFmpeg
 {
     class Program

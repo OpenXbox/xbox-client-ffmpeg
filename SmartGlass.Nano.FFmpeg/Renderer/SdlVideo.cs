@@ -8,9 +8,8 @@ using SDL2;
 
 using SmartGlass.Nano.Packets;
 using SmartGlass.Nano.FFmpeg.Enums;
-using SmartGlass.Nano.FFmpeg.Renderer;
 
-namespace SmartGlass.Nano.FFmpeg
+namespace SmartGlass.Nano.FFmpeg.Renderer
 {
     public unsafe class SdlVideo
     {

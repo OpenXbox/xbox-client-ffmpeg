@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace SmartGlass.Nano.FFmpeg
+namespace SmartGlass.Nano.FFmpeg.Decoder
 {
     public unsafe class FFmpegAudio : FFmpegBase
     {
