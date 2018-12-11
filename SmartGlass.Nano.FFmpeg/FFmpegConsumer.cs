@@ -1,4 +1,5 @@
 ﻿using System;
+using SmartGlass.Common;
 using SmartGlass.Nano.Consumer;
 using SmartGlass.Nano.Packets;
 
@@ -8,6 +9,7 @@ namespace SmartGlass.Nano.FFmpeg
 {
     public class FFmpegConsumer : IConsumer
     {
+        NanoClient _client;
         AudioFormat _audioFormat;
         VideoFormat _videoFormat;
         VideoAssembler _videoAssembler;
@@ -18,12 +20,27 @@ namespace SmartGlass.Nano.FFmpeg
         bool _audioContextInitialized;
         bool _videoContextInitialized;
 
-        public FFmpegConsumer(AudioFormat audioFormat, VideoFormat videoFormat)
+        DateTime _audioRefTimestamp;
+        DateTime _videoRefTimestamp;
+
+        uint _audioFrameId;
+        uint _videoFrameId;
+
+        public FFmpegConsumer(AudioFormat audioFormat, VideoFormat videoFormat, NanoClient client)
         {
+            _client = client;
+
+            _videoAssembler = new VideoAssembler();
+
             _audioFormat = audioFormat;
             _videoFormat = videoFormat;
 
-            _videoAssembler = new VideoAssembler();
+            _videoRefTimestamp = new DateTime().FromEpochMillisecondsUtc(_client.Video.ReferenceTimestamp);
+            _audioRefTimestamp = new DateTime().FromEpochMillisecondsUtc(_client.Audio.ReferenceTimestamp);
+
+            _audioFrameId = _client.Audio.FrameId;
+            _videoFrameId = _client.Video.FrameId;
+
             _audioHandler = new FFmpegAudio();
             _videoHandler = new FFmpegVideo();
 
@@ -112,6 +129,7 @@ namespace SmartGlass.Nano.FFmpeg
             // Enqueue encoded video data in decoder
             if (frame != null && _videoContextInitialized)
                 _videoHandler.PushData(frame);
+
             else if (args.VideoData.Header.Marker)
             {
                 H264Frame codecParamFrame = new H264Frame(args.VideoData.Data, 0, 0);

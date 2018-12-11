@@ -110,7 +110,7 @@ namespace SmartGlass.Nano.FFmpeg
             nano.OpenChatAudioChannelAsync(chatAudioFormat)
                 .GetAwaiter().GetResult();
 
-            FFmpegConsumer consumer = new FFmpegConsumer(audioFormat, videoFormat);
+            FFmpegConsumer consumer = new FFmpegConsumer(audioFormat, videoFormat, nano);
             nano.AddConsumer(consumer);
 
             // Start consumer to get decoding threads running
