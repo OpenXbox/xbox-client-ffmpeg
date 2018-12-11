@@ -17,8 +17,9 @@
     <None Update="Resources/gamecontrollerdb.txt" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Resources/Images/*" Link="Images/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Resources/Fonts/**/*.ttf" Link="Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="Resources/Lib/Windows/SDL*/x64/*.dll" Link="%(Filename)%(Extension)" Condition="'$(OS)' == 'Windows'" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="Resources/Lib/Windows/ffmpeg*/x64/bin/*.dll" Link="%(Filename)%(Extension)" Condition="'$(OS)' == 'Windows'" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Windows shared SDL2/FFmpeg libraries | TODO: build by travis -->
+    <None Update="Resources/Lib/Windows/SDL*/x64/*.dll" Link="%(Filename)%(Extension)" Condition="'$(OS)' == 'Windows_NT'" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Resources/Lib/Windows/ffmpeg*/x64/*.dll" Link="%(Filename)%(Extension)" Condition="'$(OS)' == 'Windows_NT'" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
