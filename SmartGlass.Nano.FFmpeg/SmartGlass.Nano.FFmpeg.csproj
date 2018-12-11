@@ -17,6 +17,8 @@
     <None Update="Resources/gamecontrollerdb.txt" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Resources/Images/*" Link="Images/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Resources/Fonts/**/*.ttf" Link="Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Resources/Lib/Windows/SDL*/x64/*.dll" Link="%(Filename)%(Extension)" Condition="'$(OS)' == 'Unix'" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Resources/Lib/Windows/ffmpeg*/x64/bin/*.dll" Link="%(Filename)%(Extension)" Condition="'$(OS)' == 'Unix'" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
