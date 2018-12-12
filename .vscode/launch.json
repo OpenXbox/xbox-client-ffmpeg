@@ -1,14 +1,13 @@
 {
   "version": "0.2.0",
-  "configurations": [
-    {
+  "configurations": [{
       "name": ".NET Core Launch (FFmpeg client)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Nano FFmpeg",
-      "program": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.2/SmartGlass.Nano.FFmpeg.dll",
+      "program": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.1/SmartGlass.Nano.FFmpeg.dll",
       "args": ["10.0.0.241"],
-      "cwd": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.2/",
+      "cwd": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.1/",
       "console": "integratedTerminal",
       "stopAtEntry": false,
       "internalConsoleOptions": "openOnSessionStart"

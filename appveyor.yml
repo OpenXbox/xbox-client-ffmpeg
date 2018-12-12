@@ -1,0 +1,37 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+
+configuration:
+  - Release
+
+before_build:
+  - cmd: nuget restore
+
+build:
+  publish_nuget: true
+  verbosity: minimal
+
+after_build:
+  - cmd: echo "Building publishable package for Windows x86"
+  - cmd: dotnet publish -c Release -r win-x86 -o win-x86 SmartGlass.Nano.FFmpeg
+  - cmd: 7z a SmartGlassNanoFFmpeg-%APPVEYOR_REPO_TAG_NAME%-windows-x86.zip %APPVEYOR_BUILD_FOLDER%\SmartGlass.Nano.FFmpeg\win-x86\*
+  - cmd: echo "Building publishable package for Windows x64"
+  - cmd: dotnet publish -c Release -r win-x64 -o win-x64 SmartGlass.Nano.FFmpeg
+  - cmd: 7z a SmartGlassNanoFFmpeg-%APPVEYOR_REPO_TAG_NAME%-windows-x64.zip %APPVEYOR_BUILD_FOLDER%\SmartGlass.Nano.FFmpeg\win-x64\*
+
+artifacts:
+  - path: "*.zip"
+    name: clientexe
+    type: Zip
+
+deploy:
+  - provider: GitHub
+    description: "SmartGlass Nano FFmpeg client"
+    artifact: clientexe
+    auth_token:
+      secure: qglMtUCbrzIn+36s7qWOPEj0HmJgs99bnzi4K8uYNPoxGW0qmJdOD1lmsa3TzGPn
+    draft: false
+    prerelease: false
+    tag: $(APPVEYOR_REPO_TAG_NAME)
+    on:
+      appveyor_repo_tag: true

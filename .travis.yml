@@ -11,13 +11,13 @@ matrix:
     - os: linux
       dist: xenial
       env:
-        - PUBLISH_TARGET=linux-x64 BUILD_CONFIG=Debug
-        # - PUBLISH_TARGET=linux-x64 BUILD_CONFIG=Release
+        # - PUBLISH_TARGET=linux-x64 BUILD_CONFIG=Debug
+        - PUBLISH_TARGET=linux-x64 BUILD_CONFIG=Release
     - os: osx
       osx_image: xcode9.2
       env:
-        - PUBLISH_TARGET=osx.10.12-x64 BUILD_CONFIG=Debug
-        # - PUBLISH_TARGET=osx.10.12-x64 BUILD_CONFIG=Release
+        # - PUBLISH_TARGET=osx.10.12-x64 BUILD_CONFIG=Debug
+        - PUBLISH_TARGET=osx.10.12-x64 BUILD_CONFIG=Release
 
 script:
   - dotnet --info
