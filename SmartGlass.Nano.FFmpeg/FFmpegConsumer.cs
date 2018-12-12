@@ -38,8 +38,8 @@ namespace SmartGlass.Nano.FFmpeg
             _audioFormat = audioFormat;
             _videoFormat = videoFormat;
 
-            _videoRefTimestamp = new DateTime().FromEpochMillisecondsUtc(_client.Video.ReferenceTimestamp);
-            _audioRefTimestamp = new DateTime().FromEpochMillisecondsUtc(_client.Audio.ReferenceTimestamp);
+            _videoRefTimestamp = _client.Video.ReferenceTimestamp;
+            _audioRefTimestamp = _client.Audio.ReferenceTimestamp;
 
             _audioFrameId = _client.Audio.FrameId;
             _videoFrameId = _client.Video.FrameId;

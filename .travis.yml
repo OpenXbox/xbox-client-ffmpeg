@@ -2,20 +2,51 @@ language: csharp
 mono: none
 dotnet: 2.2.100
 
+env:
+  global:
+    - PACKAGE_NAME=SmartGlassNanoFFmpeg-$TRAVIS_BRANCH-$TRAVIS_OS_NAME
+
 matrix:
-  exclude:
-    - os: windows # Windows Server version 1803
-      env: PUBLISH_TARGET=win-x64
   include:
-    - os: linux # Ubuntu 16.04
+    - os: linux
       dist: xenial
-      env: PUBLISH_TARGET=linux-x64
-    - os: osx # OSX 10.12
+      env:
+        - PUBLISH_TARGET=linux-x64 BUILD_CONFIG=Debug
+        # - PUBLISH_TARGET=linux-x64 BUILD_CONFIG=Release
+    - os: osx
       osx_image: xcode9.2
-      env: PUBLISH_TARGET=osx.10.12-x64
+      env:
+        - PUBLISH_TARGET=osx.10.12-x64 BUILD_CONFIG=Debug
+        # - PUBLISH_TARGET=osx.10.12-x64 BUILD_CONFIG=Release
 
 script:
   - dotnet --info
   - dotnet restore
-  - dotnet build
-  - dotnet publish -r $PUBLISH_TARGET
+  - dotnet build -c $BUILD_CONFIG
+  - dotnet publish -c $BUILD_CONFIG -r $PUBLISH_TARGET -o $PACKAGE_NAME SmartGlass.Nano.FFmpeg
+
+before_deploy:
+  - cd SmartGlass.Nano.FFmpeg/$PACKAGE_NAME
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then zip -r $TRAVIS_BUILD_DIR/$PACKAGE_NAME.zip .; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar czvf $TRAVIS_BUILD_DIR/$PACKAGE_NAME.tar.gz *; fi
+  - cd ..
+
+deploy:
+  - provider: releases
+    api_key:
+      secure: aAQvjfqHgpOTLsLi/7X/3r4gDEzSKWzklectorqReDNHY2QqvM7Khd/S2HHqB+xWKO0NOL3+2P26dH8qXy+7iQhp2bMKYiuLmTwlDHn0V9aOyXJrf4RqsKcqeuwudVVLEgeJPldTOpiJrQBul3XOjJ1Ty8VMgAc+/gTMbMrO5EG0OUlObm8c7KbFXkbAWbhIR4mAlbbsq1xCO4PqRcGvDy91p1HN09fnWXmqgJVC51iW+/9aWOQ3LtbEahmIKM7ouHbrfToBISrJuY6G97z8mREz07kwQow0ER5ps87BooVpPRu+zGt6dOb5GB4/K1ncz8eie89HMRoPOdlw1PuosvRj6zto9SQQhaopGJcsztMnaaTD6bSDveOAn4ngwBJk+dDZecwUkZ5vjMF+NmjOpvisRfLv39jTRYCih6PBV+n7u44cXf6QBnb+JaMfAsHwJpl/rEAMXOixDwUkhWFTsvFFysEhlz+HElDQnDuLzdMEASVvEV3RqEV/Hee+XbOAEbJI0LlQhjUEe+gD9pxg9+q1S1a8JLoBAuYJXrGCGsHCkgGbShmmSMSfSDdPNtYL8gC7NTvGEmJSwBm0+ipKy8oXtOsZ+7iFd0lNFOvYVLo4T6R7J/V6oiCpGbFM/w2JmKwMRfAmoKoJcGeK4FiyX9mY4/JzEvRdVsGVnEqouV4=
+    file: $TRAVIS_BUILD_DIR/$PACKAGE_NAME.zip
+    skip_cleanup: true
+    on:
+      tags: true
+      branch: master
+      condition: $TRAVIS_OS_NAME = osx
+  - provider: releases
+    api_key:
+      secure: aAQvjfqHgpOTLsLi/7X/3r4gDEzSKWzklectorqReDNHY2QqvM7Khd/S2HHqB+xWKO0NOL3+2P26dH8qXy+7iQhp2bMKYiuLmTwlDHn0V9aOyXJrf4RqsKcqeuwudVVLEgeJPldTOpiJrQBul3XOjJ1Ty8VMgAc+/gTMbMrO5EG0OUlObm8c7KbFXkbAWbhIR4mAlbbsq1xCO4PqRcGvDy91p1HN09fnWXmqgJVC51iW+/9aWOQ3LtbEahmIKM7ouHbrfToBISrJuY6G97z8mREz07kwQow0ER5ps87BooVpPRu+zGt6dOb5GB4/K1ncz8eie89HMRoPOdlw1PuosvRj6zto9SQQhaopGJcsztMnaaTD6bSDveOAn4ngwBJk+dDZecwUkZ5vjMF+NmjOpvisRfLv39jTRYCih6PBV+n7u44cXf6QBnb+JaMfAsHwJpl/rEAMXOixDwUkhWFTsvFFysEhlz+HElDQnDuLzdMEASVvEV3RqEV/Hee+XbOAEbJI0LlQhjUEe+gD9pxg9+q1S1a8JLoBAuYJXrGCGsHCkgGbShmmSMSfSDdPNtYL8gC7NTvGEmJSwBm0+ipKy8oXtOsZ+7iFd0lNFOvYVLo4T6R7J/V6oiCpGbFM/w2JmKwMRfAmoKoJcGeK4FiyX9mY4/JzEvRdVsGVnEqouV4=
+    file: $TRAVIS_BUILD_DIR/$PACKAGE_NAME.tar.gz
+    skip_cleanup: true
+    on:
+      tags: true
+      branch: master
+      condition: $TRAVIS_OS_NAME = linux

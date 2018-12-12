@@ -36,7 +36,7 @@ namespace SmartGlass.Nano.FFmpeg.Producer
                     try
                     {
                         _client.Input.SendInputFrame(
-                            Input.Timestamp, Input.Buttons, Input.Analog, Input.Extension)
+                            DateTime.UtcNow, Input.Buttons, Input.Analog, Input.Extension)
                                 .GetAwaiter().GetResult();
                     }
                     catch
