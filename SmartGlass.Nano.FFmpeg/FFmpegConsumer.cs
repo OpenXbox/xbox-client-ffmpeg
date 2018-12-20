@@ -127,21 +127,17 @@ namespace SmartGlass.Nano.FFmpeg
         public void ConsumeVideoData(object sender, VideoDataEventArgs args)
         {
             // TODO: Sorting
-            H264Frame frame = _videoAssembler.AssembleVideoFrame(args.VideoData);
+            var frame = _videoAssembler.AssembleVideoFrame(args.VideoData);
+
+            if (frame == null)
+                return;
 
             // Enqueue encoded video data in decoder
-            if (frame != null && _videoContextInitialized)
+            if (_videoContextInitialized)
                 _videoHandler.PushData(frame);
-
-            else if (args.VideoData.Header.Marker)
+            else if (frame.PrimaryType == NalUnitType.SEQUENCE_PARAMETER_SET)
             {
-                H264Frame codecParamFrame = new H264Frame(args.VideoData.Data, 0, 0);
-                if (!codecParamFrame.ContainsPPS || !codecParamFrame.ContainsSPS)
-                {
-                    throw new InvalidOperationException("Marked frame does not have desired params");
-                }
-
-                _videoHandler.UpdateCodecParameters(codecParamFrame.GetCodecSpecificDataAvcc());
+                _videoHandler.UpdateCodecParameters(frame.GetCodecSpecificDataAvcc());
                 _videoContextInitialized = true;
             }
         }
