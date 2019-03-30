@@ -9,6 +9,7 @@ before_build:
   - cmd: nuget restore
 
 build:
+  project: SmartGlass.Nano.FFmpeg.csproj
   publish_nuget: true
   verbosity: minimal
 
