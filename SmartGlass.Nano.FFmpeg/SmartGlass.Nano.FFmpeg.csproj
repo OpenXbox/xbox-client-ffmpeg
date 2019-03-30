@@ -28,11 +28,7 @@
     <PackageReference Include="SDL2-CS-Rolling" Version="2018.11.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <PackageReference Include="OpenXbox.SmartGlass" Version="1.0.5" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+  <ItemGroup>
     <ProjectReference Include="..\Includes\SmartGlass\SmartGlass\SmartGlass.csproj" />
   </ItemGroup>
 
