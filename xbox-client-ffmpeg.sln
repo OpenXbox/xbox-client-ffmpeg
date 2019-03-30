@@ -5,6 +5,12 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartGlass.Nano.FFmpeg", "SmartGlass.Nano.FFmpeg\SmartGlass.Nano.FFmpeg.csproj", "{D9BBAF3C-5808-4583-8C2D-CD179B1B5A17}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Includes", "Includes", "{2EB65EDB-B9FB-45E1-91E7-23CC3FB747F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmartGlass", "SmartGlass", "{D1A84FFD-A186-4C05-BD7C-524007403553}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartGlass", "Includes\SmartGlass\SmartGlass\SmartGlass.csproj", "{69410D25-50E0-4016-ACB5-51278E7280B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +36,21 @@ Global
 		{D9BBAF3C-5808-4583-8C2D-CD179B1B5A17}.Release|x64.Build.0 = Release|Any CPU
 		{D9BBAF3C-5808-4583-8C2D-CD179B1B5A17}.Release|x86.ActiveCfg = Release|Any CPU
 		{D9BBAF3C-5808-4583-8C2D-CD179B1B5A17}.Release|x86.Build.0 = Release|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Debug|x64.Build.0 = Debug|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Debug|x86.Build.0 = Debug|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Release|x64.ActiveCfg = Release|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Release|x64.Build.0 = Release|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Release|x86.ActiveCfg = Release|Any CPU
+		{69410D25-50E0-4016-ACB5-51278E7280B8}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D1A84FFD-A186-4C05-BD7C-524007403553} = {2EB65EDB-B9FB-45E1-91E7-23CC3FB747F6}
+		{69410D25-50E0-4016-ACB5-51278E7280B8} = {D1A84FFD-A186-4C05-BD7C-524007403553}
 	EndGlobalSection
 EndGlobal

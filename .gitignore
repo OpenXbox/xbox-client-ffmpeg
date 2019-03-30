@@ -1,6 +1,7 @@
 .DS_Store
 ._.DS_Store
-bin
-obj
 .vs
-packages
+.idea
+bin/
+obj/
+packages/

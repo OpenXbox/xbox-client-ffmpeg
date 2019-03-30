@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using FFmpeg.AutoGen;
 
-namespace FFmpeg.AutoGen
+namespace SmartGlass.Nano.FFmpeg
 {
     internal static class FFmpegHelper
     {

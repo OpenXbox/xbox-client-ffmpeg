@@ -2,7 +2,7 @@ using System;
 
 
 // TODO: Move into core library?
-namespace SmartGlass.Nano
+namespace SmartGlass.Nano.FFmpeg
 {
     public enum InputEventType
     {
