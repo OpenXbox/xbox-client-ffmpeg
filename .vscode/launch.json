@@ -5,9 +5,9 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Nano FFmpeg",
-      "program": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.1/SmartGlass.Nano.FFmpeg.dll",
-      "args": ["10.0.0.241"],
-      "cwd": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.1/",
+      "program": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.2/SmartGlass.Nano.FFmpeg.dll",
+      "args": ["10.0.0.123"],
+      "cwd": "${workspaceRoot}/SmartGlass.Nano.FFmpeg/bin/Debug/netcoreapp2.2/",
       "console": "integratedTerminal",
       "stopAtEntry": false,
       "internalConsoleOptions": "openOnSessionStart"
