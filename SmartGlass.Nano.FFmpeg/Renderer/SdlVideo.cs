@@ -8,6 +8,7 @@ using SDL2;
 
 using SmartGlass.Nano.Packets;
 using SmartGlass.Nano.FFmpeg.Enums;
+using SmartGlass.Nano.FFmpeg.Decoder;
 
 namespace SmartGlass.Nano.FFmpeg.Renderer
 {
@@ -155,7 +156,7 @@ namespace SmartGlass.Nano.FFmpeg.Renderer
             SDL.SDL_RenderCopy(_renderer, textTexture, ref _rectOrigin, ref dstRect);
         }
 
-        public void Update(byte[][] yuvData, int[] lineSizes)
+        public void Update(YUVFrame frame)
         {
             if (!Initialized)
             {
@@ -164,17 +165,13 @@ namespace SmartGlass.Nano.FFmpeg.Renderer
             }
 
             var tFrameRect = new SDL.SDL_Rect { x = 0, y = 0, w = _rectOrigin.w, h = _rectOrigin.h };
-            fixed (byte* y = yuvData[0], u = yuvData[1], v = yuvData[2])
+            fixed (byte* y = frame.FrameData[0], u = frame.FrameData[1], v = frame.FrameData[2])
             {
                 if (SDL.SDL_UpdateYUVTexture(
-                    _texture,
-                    ref _rectOrigin,
-                    (IntPtr)y,
-                    lineSizes[0],
-                    (IntPtr)u,
-                    lineSizes[1],
-                    (IntPtr)v,
-                    lineSizes[2]
+                    _texture, ref _rectOrigin,
+                    (IntPtr)y, frame.LineSizes[0],
+                    (IntPtr)u, frame.LineSizes[1],
+                    (IntPtr)v, frame.LineSizes[2]
                 ) < 0)
                 {
                     Debug.WriteLine($"Could not update texture: {SDL.SDL_GetError()}");

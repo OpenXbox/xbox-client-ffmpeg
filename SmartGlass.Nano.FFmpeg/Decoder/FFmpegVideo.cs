@@ -27,7 +27,7 @@ namespace SmartGlass.Nano.FFmpeg.Decoder
 
         Queue<H264Frame> encodedDataQueue;
 
-        public event EventHandler<VideoFrameDecodedArgs> ProcessDecodedFrame;
+        public event Action<YUVFrame> FrameDecoded;
 
         public void PushData(H264Frame data) => encodedDataQueue.Enqueue(data);
 
@@ -215,10 +215,7 @@ namespace SmartGlass.Nano.FFmpeg.Decoder
                                                   out int[] lineSizes);
                     if (ret == 0)
                     {
-                        VideoFrameDecodedArgs args = new VideoFrameDecodedArgs(
-                            yuvData, lineSizes);
-
-                        ProcessDecodedFrame?.Invoke(this, args);
+                        FrameDecoded?.Invoke(new YUVFrame(yuvData, lineSizes));
                     }
 
                     // Enqueue encoded packet

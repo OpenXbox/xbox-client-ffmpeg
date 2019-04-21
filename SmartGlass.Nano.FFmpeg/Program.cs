@@ -112,16 +112,15 @@ namespace SmartGlass.Nano.FFmpeg
             nano.OpenChatAudioChannelAsync(chatAudioFormat)
                 .GetAwaiter().GetResult();
 
-            FFmpegConsumer consumer = new FFmpegConsumer(audioFormat, videoFormat, nano);
-            nano.AddConsumer(consumer);
-
-            // Start consumer to get decoding threads running
-            consumer.Start();
-
             // Tell console to start sending AV frames
             nano.StartStreamAsync().GetAwaiter().GetResult();
 
-            SdlProducer producer = new SdlProducer(nano);
+            // SDL / FFMPEG setup
+            SdlProducer producer = new SdlProducer(nano, audioFormat, videoFormat);
+
+            nano.AudioFrameAvailable += producer.Decoder.ConsumeAudioData;
+            nano.VideoFrameAvailable += producer.Decoder.ConsumeVideoData;
+
             producer.MainLoop();
 
             // finally (dirty)

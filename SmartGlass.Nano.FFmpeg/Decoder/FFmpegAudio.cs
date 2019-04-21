@@ -22,7 +22,7 @@ namespace SmartGlass.Nano.FFmpeg.Decoder
 
         Queue<AACFrame> encodedDataQueue;
 
-        public event EventHandler<AudioFrameDecodedArgs> ProcessDecodedFrame;
+        public event Action<PCMSample> SampleDecoded;
 
         public void PushData(AACFrame data) => encodedDataQueue.Enqueue(data);
 
@@ -208,10 +208,7 @@ namespace SmartGlass.Nano.FFmpeg.Decoder
                     int ret = DequeueDecodedFrame(out byte[] audioSampleData);
                     if (ret == 0)
                     {
-                        AudioFrameDecodedArgs args = new AudioFrameDecodedArgs(
-                            audioSampleData);
-
-                        ProcessDecodedFrame?.Invoke(this, args);
+                        SampleDecoded?.Invoke(new PCMSample(audioSampleData));
                     }
 
                     // Enqueue encoded packet

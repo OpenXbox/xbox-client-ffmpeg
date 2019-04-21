@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using SmartGlass.Nano.Packets;
 using System.Diagnostics;
+using SmartGlass.Nano.FFmpeg.Decoder;
 
 namespace SmartGlass.Nano.FFmpeg.Renderer
 {
@@ -13,7 +14,6 @@ namespace SmartGlass.Nano.FFmpeg.Renderer
         public bool Initialized => _dev > 0;
 
         uint _dev;
-        Queue<byte[]> _audioData;
         int _sampleRate;
         int _channels;
 
@@ -22,7 +22,6 @@ namespace SmartGlass.Nano.FFmpeg.Renderer
             _sampleRate = sampleRate;
             _channels = channels;
             _dev = 0;
-            _audioData = new Queue<byte[]>();
         }
 
         public int Initialize(int samples)
@@ -64,16 +63,11 @@ namespace SmartGlass.Nano.FFmpeg.Renderer
             return 0;
         }
 
-        public void PushDecodedData(byte[] audioData)
+        public int Update(PCMSample sample)
         {
-            _audioData.Enqueue(audioData);
-        }
-
-        public int Update(byte[] audioData)
-        {
-            fixed (byte* p = audioData)
+            fixed (byte* p = sample.SampleData)
             {
-                return UpdateAudio((IntPtr)p, (uint)audioData.Length);
+                return UpdateAudio((IntPtr)p, (uint)sample.SampleData.Length);
             }
         }
 
