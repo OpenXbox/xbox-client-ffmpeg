@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using NDesk.Options;
+
 using SmartGlass.Channels;
 using SmartGlass.Channels.Broadcast;
 using SmartGlass.Common;
@@ -11,6 +13,7 @@ using SmartGlass.Nano.Packets;
 using XboxWebApi.Authentication;
 
 using SmartGlass.Nano.FFmpeg.Producer;
+using System.Collections.Generic;
 
 namespace SmartGlass.Nano.FFmpeg
 {
@@ -24,36 +27,55 @@ namespace SmartGlass.Nano.FFmpeg
 
         static void Main(string[] args)
         {
-            if (args.Length < 1)
+            var printHelp = false;
+            var ipAddress = String.Empty;
+            var tokenPath = String.Empty;
+
+            var p = new OptionSet {
+                { "h|?|help", "Show this help and exit", v => printHelp = v != null },
+                { "a|address=", "Specify {IP ADDRESS} of target console", v =>
+                {
+                    if (!VerifyIpAddress(v))
+                        throw new OptionException("Invalid IP Address", "address");
+                    ipAddress = v;
+                }},
+                { "t|token=", "Specify {TOKEN FILEPATH} for connecting authenticated", v =>
+                {
+                    if (!File.Exists(v))
+                        throw new OptionException("Invalid tokenpath", "token");
+                    tokenPath = v;
+                }}
+            };
+
+            List<string> extraArgs;
+            try
             {
-                Console.WriteLine("Error: Need an IP address!");
+                extraArgs = p.Parse(args);
+            }
+            catch (OptionException e)
+            {
+                Console.WriteLine($"Failed parsing parameter \'{e.OptionName}\': {e.Message}");
+                Console.WriteLine("Try 'SmartGlass.Nano.FFmpeg --help' for more information");
                 return;
             }
 
-            if (!VerifyIpAddress(args[0]))
+            if (printHelp || String.IsNullOrEmpty(ipAddress))
             {
-                Console.WriteLine("Passed IP argument is invalid {0}", args[0]);
+                Console.WriteLine("Usage  : SmartGlass.Nano.FFmpeg [parameters]");
+                Console.WriteLine("Gamestream from xbox one");
+                Console.WriteLine();
+                Console.WriteLine("Parameters:");
+                p.WriteOptionDescriptions(Console.Out);
                 return;
             }
 
             string userHash = null;
             string xToken = null;
 
-            if (args.Length == 2)
+            if (!String.IsNullOrEmpty(tokenPath))
             {
                 // Authenticate with Xbox Live
-                FileStream fs = null;
-                string tokenPath = args[1];
-                try
-                {
-                    fs = new FileStream(tokenPath, FileMode.Open);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Failed to load tokens from \'{tokenPath}\', error: {e.Message}");
-                    return;
-                }
-
+                FileStream fs = new FileStream(tokenPath, FileMode.Open);
                 AuthenticationService authenticator = AuthenticationService.LoadFromFile(fs);
                 try
                 {
@@ -68,7 +90,7 @@ namespace SmartGlass.Nano.FFmpeg
                 xToken = authenticator.XToken.Jwt;
             }
 
-            string hostName = args[0];
+            string hostName = ipAddress;
 
             Console.WriteLine($"Connecting to console {hostName}...");
             GamestreamConfiguration config = GamestreamConfiguration.GetStandardConfig();

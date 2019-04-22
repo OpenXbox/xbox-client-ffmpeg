@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="NDesk.Options.Core" Version="1.2.4" />
     <PackageReference Include="FFmpeg.AutoGen" Version="4.1.0.2" />
     <PackageReference Include="OpenXbox.XboxWebApi" Version="0.2.5" />
     <PackageReference Include="SDL2-CS-Rolling" Version="2018.11.1" />
