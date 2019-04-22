@@ -19,10 +19,98 @@ namespace SmartGlass.Nano.FFmpeg
 {
     class Program
     {
+        static string _userHash = null;
+        static string _xToken = null;
+
+        static AudioFormat _audioFormat = null;
+        static VideoFormat _videoFormat = null;
+        static AudioFormat _chatAudioFormat = null;
+
         static bool VerifyIpAddress(string address)
         {
             return System.Net.IPAddress.TryParse(
                 address, out System.Net.IPAddress tmp);
+        }
+
+        /// <summary>
+        /// Authenticate with Xbox Live / refresh tokens
+        /// </summary>
+        /// <param name="tokenPath">File to json tokenfile</param>
+        /// <returns></returns>
+        static bool Authenticate(string tokenPath)
+        {
+            if (String.IsNullOrEmpty(tokenPath))
+            {
+                return false;
+            }
+
+            FileStream fs = new FileStream(tokenPath, FileMode.Open);
+            AuthenticationService authenticator = AuthenticationService.LoadFromFile(fs);
+            try
+            {
+                authenticator.Authenticate();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to refresh XBL tokens, error: {e.Message}");
+                return false;
+            }
+
+            _userHash = authenticator.UserInformation.Userhash;
+            _xToken = authenticator.XToken.Jwt;
+            return true;
+        }
+
+        /// <summary>
+        /// Connect to console, request Broadcast Channel and start gamestream
+        /// </summary>
+        /// <param name="ipAddress">IP address of console</param>
+        /// <param name="gamestreamConfig">Desired gamestream configuration</param>
+        /// <returns></returns>
+        public static async Task<GamestreamSession> ConnectToConsole(string ipAddress, GamestreamConfiguration gamestreamConfig)
+        {
+            try
+            {
+                SmartGlassClient client = await SmartGlassClient.ConnectAsync(ipAddress, _userHash, _xToken);
+                return await client.BroadcastChannel.StartGamestreamAsync(gamestreamConfig);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Connection timed out! msg: {e.Message}");
+                return null;
+            }
+        }
+
+        public static async Task<NanoClient> InitNano(string ipAddress, GamestreamSession session)
+        {
+            NanoClient nano = new NanoClient(ipAddress, session);
+
+            try
+            {
+                // General Handshaking & Opening channels
+                await nano.InitializeProtocolAsync();
+                await nano.OpenInputChannelAsync(1280, 720);
+
+                // Audio & Video client handshaking
+                // Sets desired AV formats
+                _audioFormat = nano.AudioFormats[0];
+                _videoFormat = nano.VideoFormats[0];
+                await nano.InitializeStreamAsync(_audioFormat, _videoFormat);
+
+                // TODO: Send opus audio chat samples to console
+                _chatAudioFormat = new AudioFormat(1, 24000, AudioCodec.Opus);
+                await nano.OpenChatAudioChannelAsync(_chatAudioFormat);
+
+                // Tell console to start sending AV frames
+                await nano.StartStreamAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to init Nano, error: {e}");
+                return null;
+            }
+
+            return nano;
         }
 
         static void Main(string[] args)
@@ -69,76 +157,33 @@ namespace SmartGlass.Nano.FFmpeg
                 return;
             }
 
-            string userHash = null;
-            string xToken = null;
-
-            if (!String.IsNullOrEmpty(tokenPath))
-            {
-                // Authenticate with Xbox Live
-                FileStream fs = new FileStream(tokenPath, FileMode.Open);
-                AuthenticationService authenticator = AuthenticationService.LoadFromFile(fs);
-                try
-                {
-                    authenticator.Authenticate();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Failed to refresh XBL tokens, error: {e.Message}");
-                    return;
-                }
-                userHash = authenticator.UserInformation.Userhash;
-                xToken = authenticator.XToken.Jwt;
-            }
+            if (!Authenticate(tokenPath))
+                Console.WriteLine("Connecting anonymously to console, no XBL token available");
 
             string hostName = ipAddress;
 
             Console.WriteLine($"Connecting to console {hostName}...");
             GamestreamConfiguration config = GamestreamConfiguration.GetStandardConfig();
-
-            SmartGlassClient client = null;
-            try
+            
+            GamestreamSession session = ConnectToConsole(ipAddress, config).GetAwaiter().GetResult();
+            if (session == null)
             {
-                client = SmartGlassClient.ConnectAsync(hostName, userHash, xToken)
-                    .GetAwaiter().GetResult();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Connection timed out! msg: {e.Message}");
+                Console.WriteLine("Failed to connect to console!");
                 return;
             }
-
-            GamestreamSession session = client.BroadcastChannel.StartGamestreamAsync(config)
-                .GetAwaiter().GetResult();
 
             Console.WriteLine(
                 $"Connecting to NANO // TCP: {session.TcpPort}, UDP: {session.UdpPort}");
 
-            NanoClient nano = new NanoClient(hostName, session);
-
-            // General Handshaking & Opening channels
-            nano.InitializeProtocolAsync()
-                .GetAwaiter().GetResult();
-
-            nano.OpenInputChannelAsync(1280, 720)
-                .GetAwaiter().GetResult();
-
-            // Audio & Video client handshaking
-            // Sets desired AV formats
-            AudioFormat audioFormat = nano.AudioFormats[0];
-            VideoFormat videoFormat = nano.VideoFormats[0];
-            nano.InitializeStreamAsync(audioFormat, videoFormat)
-                .GetAwaiter().GetResult();
-
-            // TODO: Send opus audio chat samples to console
-            AudioFormat chatAudioFormat = new AudioFormat(1, 24000, AudioCodec.Opus);
-            nano.OpenChatAudioChannelAsync(chatAudioFormat)
-                .GetAwaiter().GetResult();
-
-            // Tell console to start sending AV frames
-            nano.StartStreamAsync().GetAwaiter().GetResult();
+            NanoClient nano = InitNano(hostName, session).GetAwaiter().GetResult();
+            if (nano == null)
+            {
+                Console.WriteLine("Nano failed!");
+                return;
+            }
 
             // SDL / FFMPEG setup
-            SdlProducer producer = new SdlProducer(nano, audioFormat, videoFormat);
+            SdlProducer producer = new SdlProducer(nano, _audioFormat, _videoFormat);
 
             nano.AudioFrameAvailable += producer.Decoder.ConsumeAudioData;
             nano.VideoFrameAvailable += producer.Decoder.ConsumeVideoData;
