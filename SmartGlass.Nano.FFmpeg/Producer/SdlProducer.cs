@@ -20,21 +20,26 @@ namespace SmartGlass.Nano.FFmpeg.Producer
         event EventHandler<InputEventArgs> HandleInputEvent;
 
         public FFmpegDecoder Decoder;
+        public bool useController { get; private set; }
 
-        public SdlProducer(NanoClient client, AudioFormat audioFormat, VideoFormat videoFormat)
+        public SdlProducer(NanoClient client, AudioFormat audioFormat, VideoFormat videoFormat, bool fullscreen = false, bool useController = true)
         {
             _cancellationTokenSource = new CancellationTokenSource();
             _client = client;
 
             _audioRenderer = new SdlAudio((int)audioFormat.SampleRate, (int)audioFormat.Channels);
-            _videoRenderer = new SdlVideo((int)videoFormat.Width, (int)videoFormat.Height);
+            _videoRenderer = new SdlVideo((int)videoFormat.Width, (int)videoFormat.Height, fullscreen);
 
             Decoder = new FFmpegDecoder(client, audioFormat, videoFormat);
 
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-            Input = new SdlInput($"{baseDir}/gamecontrollerdb.txt");
-            HandleInputEvent += Input.HandleInput;
+            this.useController = useController;
+
+            if (useController) {
+                Input = new SdlInput($"{baseDir}/gamecontrollerdb.txt");
+                HandleInputEvent += Input.HandleInput;
+            }
         }
 
         Task StartInputFrameSendingTask()
@@ -58,15 +63,17 @@ namespace SmartGlass.Nano.FFmpeg.Producer
 
         public void MainLoop()
         {
-            if (!Input.Initialize())
+            if (useController && !Input.Initialize())
                 throw new InvalidOperationException("Failed to init SDL Input");
-            
+
             _audioRenderer.Initialize(1024);
             _videoRenderer.Initialize();
 
             Decoder.Start();
 
-            StartInputFrameSendingTask();
+            if (useController) {
+                StartInputFrameSendingTask();
+            }
 
             while (!_cancellationTokenSource.IsCancellationRequested)
             {
@@ -81,7 +88,7 @@ namespace SmartGlass.Nano.FFmpeg.Producer
                     var frame = Decoder.DecodedVideoQueue.Dequeue();
                     _videoRenderer.Update(frame);
                 }
-                    
+
                 if (SDL.SDL_PollEvent(out SDL.SDL_Event sdlEvent) <= 0)
                 {
                     continue;
@@ -154,9 +161,11 @@ namespace SmartGlass.Nano.FFmpeg.Producer
             }
 
             // closes input controller
-            Input.CloseController();
+            if (useController) {
+                Input.CloseController();
+            }
         }
-        
+
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)

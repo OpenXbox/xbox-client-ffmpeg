@@ -95,6 +95,7 @@ namespace SmartGlass.Nano.FFmpeg
                 // Sets desired AV formats
                 _audioFormat = nano.AudioFormats[0];
                 _videoFormat = nano.VideoFormats[0];
+
                 await nano.InitializeStreamAsync(_audioFormat, _videoFormat);
 
                 // TODO: Send opus audio chat samples to console
@@ -116,11 +117,15 @@ namespace SmartGlass.Nano.FFmpeg
         static void Main(string[] args)
         {
             var printHelp = false;
+            var fullscreen = false;
+            var useController = false;
             var ipAddress = String.Empty;
             var tokenPath = String.Empty;
 
             var p = new OptionSet {
                 { "h|?|help", "Show this help and exit", v => printHelp = v != null },
+                { "fullscreen", "Start in fullscreen mode", v => fullscreen = v != null },
+                { "controller", "Use controller on this device", v => useController = v != null },
                 { "a|address=", "Specify {IP ADDRESS} of target console", v =>
                 {
                     if (!VerifyIpAddress(v))
@@ -149,7 +154,7 @@ namespace SmartGlass.Nano.FFmpeg
 
             if (printHelp || String.IsNullOrEmpty(ipAddress))
             {
-                Console.WriteLine("Usage  : SmartGlass.Nano.FFmpeg [parameters]");
+                Console.WriteLine("Usage: SmartGlass.Nano.FFmpeg [parameters]");
                 Console.WriteLine("Gamestream from xbox one");
                 Console.WriteLine();
                 Console.WriteLine("Parameters:");
@@ -164,7 +169,7 @@ namespace SmartGlass.Nano.FFmpeg
 
             Console.WriteLine($"Connecting to console {hostName}...");
             GamestreamConfiguration config = GamestreamConfiguration.GetStandardConfig();
-            
+
             GamestreamSession session = ConnectToConsole(ipAddress, config).GetAwaiter().GetResult();
             if (session == null)
             {
@@ -183,7 +188,7 @@ namespace SmartGlass.Nano.FFmpeg
             }
 
             // SDL / FFMPEG setup
-            SdlProducer producer = new SdlProducer(nano, _audioFormat, _videoFormat);
+            SdlProducer producer = new SdlProducer(nano, _audioFormat, _videoFormat, fullscreen, useController);
 
             nano.AudioFrameAvailable += producer.Decoder.ConsumeAudioData;
             nano.VideoFrameAvailable += producer.Decoder.ConsumeVideoData;
