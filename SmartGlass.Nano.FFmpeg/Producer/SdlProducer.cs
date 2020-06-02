@@ -20,10 +20,15 @@ namespace SmartGlass.Nano.FFmpeg.Producer
         event EventHandler<InputEventArgs> HandleInputEvent;
 
         public FFmpegDecoder Decoder;
-        public bool useController { get; private set; }
+        bool _useController;
 
-        public SdlProducer(NanoClient client, AudioFormat audioFormat, VideoFormat videoFormat, bool fullscreen = false, bool useController = true)
-        {
+        public SdlProducer(
+            NanoClient client,
+            AudioFormat audioFormat,
+            VideoFormat videoFormat,
+            bool fullscreen = false,
+            bool useController = true
+        ) {
             _cancellationTokenSource = new CancellationTokenSource();
             _client = client;
 
@@ -34,9 +39,9 @@ namespace SmartGlass.Nano.FFmpeg.Producer
 
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-            this.useController = useController;
+            _useController = useController;
 
-            if (useController) {
+            if (_useController) {
                 Input = new SdlInput($"{baseDir}/gamecontrollerdb.txt");
                 HandleInputEvent += Input.HandleInput;
             }
@@ -63,7 +68,7 @@ namespace SmartGlass.Nano.FFmpeg.Producer
 
         public void MainLoop()
         {
-            if (useController && !Input.Initialize())
+            if (_useController && !Input.Initialize())
                 throw new InvalidOperationException("Failed to init SDL Input");
 
             _audioRenderer.Initialize(1024);
@@ -71,7 +76,7 @@ namespace SmartGlass.Nano.FFmpeg.Producer
 
             Decoder.Start();
 
-            if (useController) {
+            if (_useController) {
                 StartInputFrameSendingTask();
             }
 
@@ -98,10 +103,12 @@ namespace SmartGlass.Nano.FFmpeg.Producer
                 {
                     case SDL.SDL_EventType.SDL_QUIT:
                         Console.WriteLine("SDL Quit, bye!");
+                        SDL.SDL_Quit();
                         _cancellationTokenSource.Cancel();
                         break;
 
                     case SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED:
+                        _useController = true;
                         HandleInputEvent?.Invoke(this,
                             new InputEventArgs()
                             {
@@ -112,6 +119,7 @@ namespace SmartGlass.Nano.FFmpeg.Producer
                         break;
 
                     case SDL.SDL_EventType.SDL_CONTROLLERDEVICEREMOVED:
+                        _useController = false;
                         HandleInputEvent?.Invoke(this,
                             new InputEventArgs()
                             {
@@ -161,7 +169,7 @@ namespace SmartGlass.Nano.FFmpeg.Producer
             }
 
             // closes input controller
-            if (useController) {
+            if (_useController) {
                 Input.CloseController();
             }
         }

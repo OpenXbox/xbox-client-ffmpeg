@@ -13,7 +13,6 @@ namespace SmartGlass.Nano.FFmpeg.Producer
         public bool Initialized { get; private set; }
         public string ControllerMappingFilepath { get; private set; }
 
-
         public uint Timestamp { get; private set; }
         public InputButtons Buttons { get; private set; }
         public InputAnalogue Analog { get; private set; }
