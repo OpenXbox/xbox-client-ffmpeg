@@ -16,10 +16,10 @@ build:
 after_build:
   - cmd: echo "Building publishable package for Windows x86"
   - cmd: dotnet publish -c Release -r win-x86 -o win-x86 SmartGlass.Nano.FFmpeg
-  - cmd: 7z a SmartGlassNanoFFmpeg-%APPVEYOR_REPO_TAG_NAME%-windows-x86.zip %APPVEYOR_BUILD_FOLDER%\SmartGlass.Nano.FFmpeg\win-x86\*
+  - cmd: 7z a SmartGlassNanoFFmpeg-%APPVEYOR_REPO_TAG_NAME%-windows-x86.zip %APPVEYOR_BUILD_FOLDER%\win-x86\*
   - cmd: echo "Building publishable package for Windows x64"
   - cmd: dotnet publish -c Release -r win-x64 -o win-x64 SmartGlass.Nano.FFmpeg
-  - cmd: 7z a SmartGlassNanoFFmpeg-%APPVEYOR_REPO_TAG_NAME%-windows-x64.zip %APPVEYOR_BUILD_FOLDER%\SmartGlass.Nano.FFmpeg\win-x64\*
+  - cmd: 7z a SmartGlassNanoFFmpeg-%APPVEYOR_REPO_TAG_NAME%-windows-x64.zip %APPVEYOR_BUILD_FOLDER%\win-x64\*
 
 artifacts:
   - path: "*.zip"
