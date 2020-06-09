@@ -45,11 +45,16 @@ namespace SmartGlass.Nano.FFmpeg.Renderer
                 window_flags = SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN;
 
             _window = SDL.SDL_CreateWindow(
-                "Nano",
+                "Gamestreaming",
                 SDL.SDL_WINDOWPOS_UNDEFINED,
                 SDL.SDL_WINDOWPOS_UNDEFINED,
                 _rectOrigin.w, _rectOrigin.h,
                 window_flags | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL
+            );
+
+            SDL.SDL_SetWindowIcon(
+                _window,
+                SDL_image.IMG_Load($"{AppDomain.CurrentDomain.BaseDirectory}/Images/icon.png")
             );
 
             if (_window == IntPtr.Zero)
